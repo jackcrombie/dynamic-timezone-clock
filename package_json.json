@@ -1,0 +1,46 @@
+{
+  "name": "dynamic-timezone-clock",
+  "version": "1.0.0",
+  "description": "A simple, lightweight web-based clock that displays time for any timezone with customizable display codes and background colours",
+  "main": "index.html",
+  "scripts": {
+    "start": "python3 -m http.server 8080",
+    "dev": "python3 -m http.server 8080",
+    "deploy": "./updateclock.sh",
+    "test": "echo 'Open http://localhost:8080 to test manually' && npm run start"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jackcrombie/dynamic-timezone-clock.git"
+  },
+  "keywords": [
+    "clock",
+    "timezone",
+    "time",
+    "web",
+    "html",
+    "javascript",
+    "obs",
+    "overlay",
+    "streaming",
+    "display",
+    "utility",
+    "responsive",
+    "real-time"
+  ],
+  "author": "Jack Crombie <jack@endframe.net>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jackcrombie/dynamic-timezone-clock/issues"
+  },
+  "homepage": "https://github.com/jackcrombie/dynamic-timezone-clock#readme",
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "browserslist": [
+    "last 3 Chrome versions",
+    "last 3 Firefox versions",
+    "last 3 Safari versions",
+    "last 3 Edge versions"
+  ]
+}

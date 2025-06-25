@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Clock Configuration - clock.endframe.net</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Oxygen, Ubuntu, Cantarell, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+
+      .header {
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        color: white;
+        padding: 30px;
+        text-align: center;
+      }
+
+      .header .logo {
+        margin-bottom: 20px;
+      }
+
+      .header .logo img {
+        height: 60px;
+        width: auto;
+      }
+
+      .header h1 {
+        font-size: 2.5em;
+        margin-bottom: 10px;
+        font-weight: 300;
+      }
+
+      .header p {
+        opacity: 0.9;
+        font-size: 1.1em;
+      }
+
+      .form-container {
+        padding: 40px;
+      }
+
+      .instructions {
+        background: #f8f9fa;
+        border-left: 4px solid #667eea;
+        border-radius: 0 8px 8px 0;
+        margin-bottom: 30px;
+        overflow: hidden;
+      }
+
+      .instructions-header {
+        padding: 20px;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #f1f3f4;
+        border-bottom: 1px solid #e9ecef;
+      }
+
+      .instructions-header:hover {
+        background: #e9ecef;
+      }
+
+      .instructions-content {
+        padding: 20px;
+        display: none;
+      }
+
+      .instructions-content.show {
+        display: block;
+      }
+
+      .instructions-toggle {
+        font-size: 1.2em;
+        color: #667eea;
+        transition: transform 0.3s ease;
+      }
+
+      .instructions-toggle.rotated {
+        transform: rotate(180deg);
+      }
+
+      .instructions h3 {
+        color: #2c3e50;
+        margin-bottom: 15px;
+        font-size: 1.3em;
+      }
+
+      .instructions ul {
+        list-style: none;
+        padding-left: 0;
+      }
+
+      .instructions li {
+        margin-bottom: 8px;
+        padding-left: 20px;
+        position: relative;
+      }
+
+      .instructions li:before {
+        content: "→";
+        position: absolute;
+        left: 0;
+        color: #667eea;
+        font-weight: bold;
+      }
+
+      .form-row {
+        display: flex;
+        gap: 30px;
+        margin-bottom: 15px;
+      }
+
+      .form-row .form-group {
+        flex: 1;
+        margin-bottom: 0;
+      }
+
+      .form-group {
+        margin-bottom: 25px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 1.1em;
+      }
+
+      .help-text {
+        font-size: 0.9em;
+        color: #6c757d;
+        margin-bottom: 8px;
+      }
+
+      select,
+      input[type="text"],
+      .timezone-input {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        font-size: 1em;
+        transition: border-color 0.3s ease;
+      }
+
+      select:focus,
+      input[type="text"]:focus,
+      .timezone-input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      }
+
+      .timezone-input {
+        list-style: none;
+        position: relative;
+      }
+
+      .timezone-suggestions {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 2px solid #667eea;
+        border-top: none;
+        border-radius: 0 0 8px 8px;
+        max-height: 200px;
+        overflow-y: auto;
+        z-index: 1000;
+        display: none;
+      }
+
+      .timezone-suggestion {
+        padding: 12px 16px;
+        cursor: pointer;
+        border-bottom: 1px solid #f0f0f0;
+      }
+
+      .timezone-suggestion:hover,
+      .timezone-suggestion.highlighted {
+        background: #667eea;
+        color: white;
+      }
+
+      .timezone-suggestion:last-child {
+        border-bottom: none;
+      }
+
+      .color-group {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+
+      input[type="color"] {
+        width: 60px;
+        height: 45px;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+      }
+
+      input[type="color"]:hover {
+        transform: scale(1.05);
+      }
+
+      .transparent-btn {
+        background: #f8f9fa;
+        border: 2px solid #6c757d;
+        border-radius: 6px;
+        width: 80px;
+        height: 45px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 11px;
+        font-weight: 600;
+        color: #495057;
+        text-transform: uppercase;
+      }
+
+      .transparent-btn:hover {
+        background: #e9ecef;
+        border-color: #495057;
+        transform: translateY(-1px);
+      }
+
+      .color-preview {
+        flex: 1;
+        padding: 12px 16px;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        font-family: monospace;
+        background: #f8f9fa;
+      }
+
+      .buttons {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+      }
+
+      button {
+        flex: 1;
+        padding: 15px 25px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1em;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .btn-generate {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+
+      .btn-generate:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+      }
+
+      .btn-preview {
+        background: #28a745;
+        color: white;
+      }
+
+      .btn-preview:hover {
+        background: #218838;
+        transform: translateY(-2px);
+      }
+
+      .output {
+        margin-top: 30px;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        border: 2px solid #e9ecef;
+      }
+
+      .output h4 {
+        color: #2c3e50;
+        margin-bottom: 15px;
+      }
+
+      .url-output {
+        background: white;
+        padding: 15px;
+        border-radius: 6px;
+        border: 1px solid #dee2e6;
+        font-family: monospace;
+        word-break: break-all;
+        margin-bottom: 15px;
+        position: relative;
+      }
+
+      .copy-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: #6c757d;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-size: 0.8em;
+        cursor: pointer;
+      }
+
+      .copy-btn:hover {
+        background: #495057;
+      }
+
+      .preview-frame {
+        width: 100%;
+        height: 200px;
+        border: 2px solid #dee2e6;
+        border-radius: 8px;
+        margin-top: 15px;
+      }
+
+      .hidden {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <div class="logo">
+          <img
+            src="https://images.squarespace-cdn.com/content/v1/5f472f112d90b306a6451b02/1598501694191-DO6FMR9J5ORUIL6KZ5PE/endframe_logo_Large_white.png?format=1500w"
+            alt="Endframe"
+          />
+        </div>
+        <h1>🕐 Clock Generator</h1>
+        <p>Create your custom timezone clock</p>
+      </div>
+
+      <div class="form-container">
+        <div class="instructions">
+          <div class="instructions-header" onclick="toggleInstructions()">
+            <h3 style="margin: 0; color: #2c3e50; font-size: 1.3em">
+              Instructions
+            </h3>
+            <span class="instructions-toggle">▼</span>
+          </div>
+          <div class="instructions-content" id="instructionsContent">
+            <ul>
+              <li>
+                <strong>Timezone:</strong> Select your desired timezone
+                (default: Australia/Sydney)
+              </li>
+              <li>
+                <strong>Code:</strong> Enter a 3-letter code to display
+                (default: SYD)
+              </li>
+              <li>
+                <strong>Background:</strong> Choose background colour (default:
+                transparent)
+              </li>
+              <li>
+                <strong>Uses:</strong> Perfect for embedding in websites, OBS,
+                or standalone display
+              </li>
+              <li>
+                <strong>Updates:</strong> Clock updates every second
+                automatically
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <form id="clockForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="timezone">Timezone</label>
+              <div class="help-text">
+                Type or select the timezone for your clock
+              </div>
+              <div style="position: relative">
+                <input
+                  type="text"
+                  id="timezone"
+                  name="timezone"
+                  value="Australia/Sydney"
+                  class="timezone-input"
+                  placeholder="Type timezone (e.g., America/New_York)"
+                  autocomplete="off"
+                />
+                <div
+                  id="timezoneSuggestions"
+                  class="timezone-suggestions"
+                ></div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="code">Display Code</label>
+              <div class="help-text">3-letter code to show with the time</div>
+              <input
+                type="text"
+                id="code"
+                name="code"
+                value="SYD"
+                maxlength="5"
+                placeholder="SYD"
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="background">Background Colour</label>
+            <div class="help-text">
+              Choose background colour with transparency support
+            </div>
+            <div class="color-group">
+              <input
+                type="color"
+                id="background"
+                name="background"
+                value="#000000"
+                style="color-scheme: light"
+              />
+              <button
+                type="button"
+                class="transparent-btn"
+                onclick="setTransparent()"
+                title="Set Transparent Background"
+              >
+                Transparent
+              </button>
+              <input
+                type="text"
+                class="color-preview"
+                id="colorText"
+                value="transparent"
+                placeholder="transparent, black, #000000, rgba(0,0,0,0.5)"
+              />
+            </div>
+          </div>
+
+          <div class="buttons">
+            <button type="button" class="btn-generate" onclick="generateURL()">
+              Generate URL
+            </button>
+            <button type="button" class="btn-preview" onclick="previewClock()">
+              Preview Clock
+            </button>
+          </div>
+        </form>
+
+        <div id="output" class="output hidden">
+          <h4>Your Clock URL:</h4>
+          <div class="url-output">
+            <span id="generatedURL"></span>
+            <button class="copy-btn" onclick="copyURL()">Copy</button>
+          </div>
+          <iframe id="preview" class="preview-frame hidden"></iframe>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Comprehensive list of IANA timezones with common codes
+      const timezones = [
+        "Africa/Abidjan",
+        "Africa/Accra",
+        "Africa/Addis_Ababa",
+        "Africa/Algiers",
+        "Africa/Asmara",
+        "Africa/Bamako",
+        "Africa/Bangui",
+        "Africa/Banjul",
+        "Africa/Bissau",
+        "Africa/Blantyre",
+        "Africa/Brazzaville",
+        "Africa/Bujumbura",
+        "Africa/Cairo",
+        "Africa/Casablanca",
+        "Africa/Ceuta",
+        "Africa/Conakry",
+        "Africa/Dakar",
+        "Africa/Dar_es_Salaam",
+        "Africa/Djibouti",
+        "Africa/Douala",
+        "Africa/El_Aaiun",
+        "Africa/Freetown",
+        "Africa/Gaborone",
+        "Africa/Harare",
+        "Africa/Johannesburg",
+        "Africa/Juba",
+        "Africa/Kampala",
+        "Africa/Khartoum",
+        "Africa/Kigali",
+        "Africa/Kinshasa",
+        "Africa/Lagos",
+        "Africa/Libreville",
+        "Africa/Lome",
+        "Africa/Luanda",
+        "Africa/Lubumbashi",
+        "Africa/Lusaka",
+        "Africa/Malabo",
+        "Africa/Maputo",
+        "Africa/Maseru",
+        "Africa/Mbabane",
+        "Africa/Mogadishu",
+        "Africa/Monrovia",
+        "Africa/Nairobi",
+        "Africa/Ndjamena",
+        "Africa/Niamey",
+        "Africa/Nouakchott",
+        "Africa/Ouagadougou",
+        "Africa/Porto-Novo",
+        "Africa/Sao_Tome",
+        "Africa/Tripoli",
+        "Africa/Tunis",
+        "Africa/Windhoek",
+
+        "America/Adak",
+        "America/Anchorage",
+        "America/Anguilla",
+        "America/Antigua",
+        "America/Araguaina",
+        "America/Argentina/Buenos_Aires",
+        "America/Argentina/Catamarca",
+        "America/Argentina/Cordoba",
+        "America/Argentina/Jujuy",
+        "America/Argentina/La_Rioja",
+        "America/Argentina/Mendoza",
+        "America/Argentina/Rio_Gallegos",
+        "America/Argentina/Salta",
+        "America/Argentina/San_Juan",
+        "America/Argentina/San_Luis",
+        "America/Argentina/Tucuman",
+        "America/Argentina/Ushuaia",
+        "America/Aruba",
+        "America/Asuncion",
+        "America/Atikokan",
+        "America/Bahia",
+        "America/Bahia_Banderas",
+        "America/Barbados",
+        "America/Belem",
+        "America/Belize",
+        "America/Blanc-Sablon",
+        "America/Boa_Vista",
+        "America/Bogota",
+        "America/Boise",
+        "America/Buenos_Aires",
+        "America/Cambridge_Bay",
+        "America/Campo_Grande",
+        "America/Cancun",
+        "America/Caracas",
+        "America/Cayenne",
+        "America/Cayman",
+        "America/Chicago",
+        "America/Chihuahua",
+        "America/Costa_Rica",
+        "America/Creston",
+        "America/Cuiaba",
+        "America/Curacao",
+        "America/Danmarkshavn",
+        "America/Dawson",
+        "America/Dawson_Creek",
+        "America/Denver",
+        "America/Detroit",
+        "America/Dominica",
+        "America/Edmonton",
+        "America/Eirunepe",
+        "America/El_Salvador",
+        "America/Fort_Nelson",
+        "America/Fortaleza",
+        "America/Glace_Bay",
+        "America/Godthab",
+        "America/Goose_Bay",
+        "America/Grand_Turk",
+        "America/Grenada",
+        "America/Guadeloupe",
+        "America/Guatemala",
+        "America/Guayaquil",
+        "America/Guyana",
+        "America/Halifax",
+        "America/Havana",
+        "America/Hermosillo",
+        "America/Indiana/Indianapolis",
+        "America/Indiana/Knox",
+        "America/Indiana/Marengo",
+        "America/Indiana/Petersburg",
+        "America/Indiana/Tell_City",
+        "America/Indiana/Vevay",
+        "America/Indiana/Vincennes",
+        "America/Indiana/Winamac",
+        "America/Inuvik",
+        "America/Iqaluit",
+        "America/Jamaica",
+        "America/Juneau",
+        "America/Kentucky/Louisville",
+        "America/Kentucky/Monticello",
+        "America/Kralendijk",
+        "America/La_Paz",
+        "America/Lima",
+        "America/Los_Angeles",
+        "America/Lower_Princes",
+        "America/Maceio",
+        "America/Managua",
+        "America/Manaus",
+        "America/Marigot",
+        "America/Martinique",
+        "America/Matamoros",
+        "America/Mazatlan",
+        "America/Menominee",
+        "America/Merida",
+        "America/Metlakatla",
+        "America/Mexico_City",
+        "America/Miquelon",
+        "America/Moncton",
+        "America/Monterrey",
+        "America/Montevideo",
+        "America/Montserrat",
+        "America/Nassau",
+        "America/New_York",
+        "America/Nipigon",
+        "America/Nome",
+        "America/Noronha",
+        "America/North_Dakota/Beulah",
+        "America/North_Dakota/Center",
+        "America/North_Dakota/New_Salem",
+        "America/Ojinaga",
+        "America/Panama",
+        "America/Pangnirtung",
+        "America/Paramaribo",
+        "America/Phoenix",
+        "America/Port-au-Prince",
+        "America/Port_of_Spain",
+        "America/Porto_Velho",
+        "America/Puerto_Rico",
+        "America/Punta_Arenas",
+        "America/Rainy_River",
+        "America/Rankin_Inlet",
+        "America/Recife",
+        "America/Regina",
+        "America/Resolute",
+        "America/Rio_Branco",
+        "America/Santarem",
+        "America/Santiago",
+        "America/Santo_Domingo",
+        "America/Sao_Paulo",
+        "America/Scoresbysund",
+        "America/Sitka",
+        "America/St_Barthelemy",
+        "America/St_Johns",
+        "America/St_Kitts",
+        "America/St_Lucia",
+        "America/St_Thomas",
+        "America/St_Vincent",
+        "America/Swift_Current",
+        "America/Tegucigalpa",
+        "America/Thule",
+        "America/Thunder_Bay",
+        "America/Tijuana",
+        "America/Toronto",
+        "America/Tortola",
+        "America/Vancouver",
+        "America/Whitehorse",
+        "America/Winnipeg",
+        "America/Yakutat",
+        "America/Yellowknife",
+
+        "Antarctica/Casey",
+        "Antarctica/Davis",
+        "Antarctica/DumontDUrville",
+        "Antarctica/Macquarie",
+        "Antarctica/Mawson",
+        "Antarctica/McMurdo",
+        "Antarctica/Palmer",
+        "Antarctica/Rothera",
+        "Antarctica/Syowa",
+        "Antarctica/Troll",
+        "Antarctica/Vostok",
+
+        "Arctic/Longyearbyen",
+
+        "Asia/Aden",
+        "Asia/Almaty",
+        "Asia/Amman",
+        "Asia/Anadyr",
+        "Asia/Aqtau",
+        "Asia/Aqtobe",
+        "Asia/Ashgabat",
+        "Asia/Atyrau",
+        "Asia/Baghdad",
+        "Asia/Bahrain",
+        "Asia/Baku",
+        "Asia/Bangkok",
+        "Asia/Barnaul",
+        "Asia/Beirut",
+        "Asia/Bishkek",
+        "Asia/Brunei",
+        "Asia/Chita",
+        "Asia/Choibalsan",
+        "Asia/Colombo",
+        "Asia/Damascus",
+        "Asia/Dhaka",
+        "Asia/Dili",
+        "Asia/Dubai",
+        "Asia/Dushanbe",
+        "Asia/Famagusta",
+        "Asia/Gaza",
+        "Asia/Hebron",
+        "Asia/Ho_Chi_Minh",
+        "Asia/Hong_Kong",
+        "Asia/Hovd",
+        "Asia/Irkutsk",
+        "Asia/Jakarta",
+        "Asia/Jayapura",
+        "Asia/Jerusalem",
+        "Asia/Kabul",
+        "Asia/Kamchatka",
+        "Asia/Karachi",
+        "Asia/Kathmandu",
+        "Asia/Khandyga",
+        "Asia/Kolkata",
+        "Asia/Krasnoyarsk",
+        "Asia/Kuala_Lumpur",
+        "Asia/Kuching",
+        "Asia/Kuwait",
+        "Asia/Macau",
+        "Asia/Magadan",
+        "Asia/Makassar",
+        "Asia/Manila",
+        "Asia/Muscat",
+        "Asia/Nicosia",
+        "Asia/Novokuznetsk",
+        "Asia/Novosibirsk",
+        "Asia/Omsk",
+        "Asia/Oral",
+        "Asia/Phnom_Penh",
+        "Asia/Pontianak",
+        "Asia/Pyongyang",
+        "Asia/Qatar",
+        "Asia/Qostanay",
+        "Asia/Qyzylorda",
+        "Asia/Riyadh",
+        "Asia/Sakhalin",
+        "Asia/Samarkand",
+        "Asia/Seoul",
+        "Asia/Shanghai",
+        "Asia/Singapore",
+        "Asia/Srednekolymsk",
+        "Asia/Taipei",
+        "Asia/Tashkent",
+        "Asia/Tbilisi",
+        "Asia/Tehran",
+        "Asia/Thimphu",
+        "Asia/Tokyo",
+        "Asia/Tomsk",
+        "Asia/Ulaanbaatar",
+        "Asia/Urumqi",
+        "Asia/Ust-Nera",
+        "Asia/Vientiane",
+        "Asia/Vladivostok",
+        "Asia/Yakutsk",
+        "Asia/Yangon",
+        "Asia/Yekaterinburg",
+        "Asia/Yerevan",
+
+        "Atlantic/Azores",
+        "Atlantic/Bermuda",
+        "Atlantic/Canary",
+        "Atlantic/Cape_Verde",
+        "Atlantic/Faroe",
+        "Atlantic/Madeira",
+        "Atlantic/Reykjavik",
+        "Atlantic/South_Georgia",
+        "Atlantic/St_Helena",
+        "Atlantic/Stanley",
+
+        "Australia/Adelaide",
+        "Australia/Brisbane",
+        "Australia/Broken_Hill",
+        "Australia/Currie",
+        "Australia/Darwin",
+        "Australia/Eucla",
+        "Australia/Hobart",
+        "Australia/Lindeman",
+        "Australia/Lord_Howe",
+        "Australia/Melbourne",
+        "Australia/Perth",
+        "Australia/Sydney",
+
+        "Europe/Amsterdam",
+        "Europe/Andorra",
+        "Europe/Astrakhan",
+        "Europe/Athens",
+        "Europe/Belgrade",
+        "Europe/Berlin",
+        "Europe/Bratislava",
+        "Europe/Brussels",
+        "Europe/Bucharest",
+        "Europe/Budapest",
+        "Europe/Busingen",
+        "Europe/Chisinau",
+        "Europe/Copenhagen",
+        "Europe/Dublin",
+        "Europe/Gibraltar",
+        "Europe/Guernsey",
+        "Europe/Helsinki",
+        "Europe/Isle_of_Man",
+        "Europe/Istanbul",
+        "Europe/Jersey",
+        "Europe/Kaliningrad",
+        "Europe/Kiev",
+        "Europe/Kirov",
+        "Europe/Lisbon",
+        "Europe/Ljubljana",
+        "Europe/London",
+        "Europe/Luxembourg",
+        "Europe/Madrid",
+        "Europe/Malta",
+        "Europe/Mariehamn",
+        "Europe/Minsk",
+        "Europe/Monaco",
+        "Europe/Moscow",
+        "Europe/Oslo",
+        "Europe/Paris",
+        "Europe/Podgorica",
+        "Europe/Prague",
+        "Europe/Riga",
+        "Europe/Rome",
+        "Europe/Samara",
+        "Europe/San_Marino",
+        "Europe/Sarajevo",
+        "Europe/Saratov",
+        "Europe/Simferopol",
+        "Europe/Skopje",
+        "Europe/Sofia",
+        "Europe/Stockholm",
+        "Europe/Tallinn",
+        "Europe/Tirane",
+        "Europe/Ulyanovsk",
+        "Europe/Uzhgorod",
+        "Europe/Vaduz",
+        "Europe/Vatican",
+        "Europe/Vienna",
+        "Europe/Vilnius",
+        "Europe/Volgograd",
+        "Europe/Warsaw",
+        "Europe/Zagreb",
+        "Europe/Zaporozhye",
+        "Europe/Zurich",
+
+        "Indian/Antananarivo",
+        "Indian/Chagos",
+        "Indian/Christmas",
+        "Indian/Cocos",
+        "Indian/Comoro",
+        "Indian/Kerguelen",
+        "Indian/Mahe",
+        "Indian/Maldives",
+        "Indian/Mauritius",
+        "Indian/Mayotte",
+        "Indian/Reunion",
+
+        "Pacific/Apia",
+        "Pacific/Auckland",
+        "Pacific/Bougainville",
+        "Pacific/Chatham",
+        "Pacific/Chuuk",
+        "Pacific/Easter",
+        "Pacific/Efate",
+        "Pacific/Enderbury",
+        "Pacific/Fakaofo",
+        "Pacific/Fiji",
+        "Pacific/Funafuti",
+        "Pacific/Galapagos",
+        "Pacific/Gambier",
+        "Pacific/Guadalcanal",
+        "Pacific/Guam",
+        "Pacific/Honolulu",
+        "Pacific/Kiritimati",
+        "Pacific/Kosrae",
+        "Pacific/Kwajalein",
+        "Pacific/Majuro",
+        "Pacific/Marquesas",
+        "Pacific/Midway",
+        "Pacific/Nauru",
+        "Pacific/Niue",
+        "Pacific/Norfolk",
+        "Pacific/Noumea",
+        "Pacific/Pago_Pago",
+        "Pacific/Palau",
+        "Pacific/Pitcairn",
+        "Pacific/Pohnpei",
+        "Pacific/Port_Moresby",
+        "Pacific/Rarotonga",
+        "Pacific/Saipan",
+        "Pacific/Tahiti",
+        "Pacific/Tarawa",
+        "Pacific/Tongatapu",
+        "Pacific/Wake",
+        "Pacific/Wallis",
+      ];
+
+      // Toggle instructions visibility
+      function toggleInstructions() {
+        const content = document.getElementById("instructionsContent");
+        const toggle = document.querySelector(".instructions-toggle");
+
+        if (content.classList.contains("show")) {
+          content.classList.remove("show");
+          toggle.classList.remove("rotated");
+        } else {
+          content.classList.add("show");
+          toggle.classList.add("rotated");
+        }
+      }
+
+      let currentSuggestionIndex = -1;
+
+      // Timezone autocomplete functionality
+      document
+        .getElementById("timezone")
+        .addEventListener("input", function (e) {
+          const input = e.target.value.toLowerCase();
+          const suggestions = document.getElementById("timezoneSuggestions");
+
+          if (input.length < 2) {
+            suggestions.style.display = "none";
+            return;
+          }
+
+          const matches = timezones
+            .filter((tz) => tz.toLowerCase().includes(input))
+            .slice(0, 10); // Limit to 10 suggestions
+
+          if (matches.length === 0) {
+            suggestions.style.display = "none";
+            return;
+          }
+
+          suggestions.innerHTML = matches
+            .map(
+              (tz) =>
+                `<div class="timezone-suggestion" onclick="selectTimezone('${tz}')">${tz}</div>`
+            )
+            .join("");
+
+          suggestions.style.display = "block";
+          currentSuggestionIndex = -1;
+        });
+
+      // Handle keyboard navigation
+      document
+        .getElementById("timezone")
+        .addEventListener("keydown", function (e) {
+          const suggestions = document.getElementById("timezoneSuggestions");
+          const suggestionItems = suggestions.querySelectorAll(
+            ".timezone-suggestion"
+          );
+
+          if (
+            suggestions.style.display === "none" ||
+            suggestionItems.length === 0
+          )
+            return;
+
+          if (e.key === "ArrowDown") {
+            e.preventDefault();
+            currentSuggestionIndex = Math.min(
+              currentSuggestionIndex + 1,
+              suggestionItems.length - 1
+            );
+            updateSuggestionHighlight(suggestionItems);
+          } else if (e.key === "ArrowUp") {
+            e.preventDefault();
+            currentSuggestionIndex = Math.max(currentSuggestionIndex - 1, -1);
+            updateSuggestionHighlight(suggestionItems);
+          } else if (e.key === "Enter") {
+            e.preventDefault();
+            if (currentSuggestionIndex >= 0) {
+              selectTimezone(
+                suggestionItems[currentSuggestionIndex].textContent
+              );
+            }
+          } else if (e.key === "Escape") {
+            suggestions.style.display = "none";
+            currentSuggestionIndex = -1;
+          }
+        });
+
+      function updateSuggestionHighlight(suggestionItems) {
+        suggestionItems.forEach((item, index) => {
+          if (index === currentSuggestionIndex) {
+            item.classList.add("highlighted");
+          } else {
+            item.classList.remove("highlighted");
+          }
+        });
+      }
+
+      // Local cache for Australian cities (and other major ones)
+      const localTimezoneMap = {
+        // Australian cities
+        "Australia/Adelaide": "ADL",
+        "Australia/Brisbane": "BNE",
+        "Australia/Broken_Hill": "BHQ",
+        "Australia/Currie": "CUR",
+        "Australia/Darwin": "DRW",
+        "Australia/Eucla": "EUC",
+        "Australia/Hobart": "HBA",
+        "Australia/Lindeman": "LDC",
+        "Australia/Lord_Howe": "LDH",
+        "Australia/Melbourne": "MEL",
+        "Australia/Perth": "PER",
+        "Australia/Sydney": "SYD",
+
+        // Major international cities for quick reference
+        "America/New_York": "NYC",
+        "America/Los_Angeles": "LAX",
+        "America/Chicago": "CHI",
+        "Europe/London": "LON",
+        "Europe/Paris": "PAR",
+        "Asia/Tokyo": "TYO",
+        "Pacific/Auckland": "AKL",
+        "Asia/Singapore": "SIN",
+        "Asia/Hong_Kong": "HKG",
+        "Europe/Berlin": "BER",
+        "Asia/Dubai": "DXB",
+      };
+
+      // Cache for WorldTimeAPI results to avoid repeated calls
+      const apiCache = new Map();
+
+      // Get timezone abbreviation from local cache or WorldTimeAPI
+      async function getTimezoneCode(timezone) {
+        // Check local cache first
+        if (localTimezoneMap[timezone]) {
+          return localTimezoneMap[timezone];
+        }
+
+        // Check API cache
+        if (apiCache.has(timezone)) {
+          return apiCache.get(timezone);
+        }
+
+        // Fetch from WorldTimeAPI
+        try {
+          const response = await fetch(
+            `http://worldtimeapi.org/api/timezone/${timezone}`,
+            {
+              timeout: 3000, // 3 second timeout
+            }
+          );
+
+          if (!response.ok) throw new Error("API request failed");
+
+          const data = await response.json();
+          let code = data.abbreviation;
+
+          // Clean up the abbreviation (remove +/- and numbers)
+          code = code.replace(/[+-]\d+/g, "").substring(0, 5);
+
+          // Cache the result
+          apiCache.set(timezone, code);
+
+          return code;
+        } catch (error) {
+          console.log(
+            "WorldTimeAPI unavailable for",
+            timezone,
+            "- using fallback"
+          );
+
+          // Fallback: extract city name from timezone
+          const parts = timezone.split("/");
+          const city = parts[parts.length - 1].replace(/_/g, " ");
+          const fallbackCode = city.substring(0, 3).toUpperCase();
+
+          // Cache the fallback
+          apiCache.set(timezone, fallbackCode);
+
+          return fallbackCode;
+        }
+      }
+
+      function selectTimezone(timezone) {
+        document.getElementById("timezone").value = timezone;
+        document.getElementById("timezoneSuggestions").style.display = "none";
+        currentSuggestionIndex = -1;
+
+        // Auto-suggest code based on timezone
+        getTimezoneCode(timezone).then((code) => {
+          if (code) {
+            document.getElementById("code").value = code;
+          }
+        });
+      }
+
+      // Hide suggestions when clicking outside
+      document.addEventListener("click", function (e) {
+        if (
+          !e.target.closest("#timezone") &&
+          !e.target.closest("#timezoneSuggestions")
+        ) {
+          document.getElementById("timezoneSuggestions").style.display = "none";
+        }
+      });
+
+      // Set transparent background
+      function setTransparent() {
+        document.getElementById("colorText").value = "transparent";
+        // Reset color picker to black as a reference
+        document.getElementById("background").value = "#000000";
+      }
+
+      // Update color text when color picker changes
+      document
+        .getElementById("background")
+        .addEventListener("input", function (e) {
+          document.getElementById("colorText").value = e.target.value;
+        });
+
+      // Update color picker when text changes
+      document
+        .getElementById("colorText")
+        .addEventListener("input", function (e) {
+          const value = e.target.value.toLowerCase();
+          if (value.match(/^#[0-9a-f]{6}$/i)) {
+            document.getElementById("background").value = value;
+          }
+        });
+
+      // Auto-fill code based on timezone selection - no longer needed since timezone is now a text input
+      // (keeping the functionality in selectTimezone function instead)
+
+      function generateURL() {
+        const timezone =
+          document.getElementById("timezone").value || "Australia/Sydney";
+        const code = document.getElementById("code").value || "SYD";
+        const bgColor =
+          document.getElementById("colorText").value || "transparent";
+
+        let url = `https://clock.endframe.net/?tz=${encodeURIComponent(
+          timezone
+        )}&code=${encodeURIComponent(code.toUpperCase())}`;
+
+        if (bgColor !== "transparent") {
+          url += `&bg=${encodeURIComponent(bgColor)}`;
+        }
+
+        document.getElementById("generatedURL").textContent = url;
+        document.getElementById("output").classList.remove("hidden");
+        document.getElementById("preview").classList.add("hidden");
+      }
+
+      function previewClock() {
+        generateURL();
+        const url = document.getElementById("generatedURL").textContent;
+        document.getElementById("preview").src = url;
+        document.getElementById("preview").classList.remove("hidden");
+      }
+
+      function copyURL() {
+        const url = document.getElementById("generatedURL").textContent;
+        navigator.clipboard.writeText(url).then(function () {
+          const btn = document.querySelector(".copy-btn");
+          const originalText = btn.textContent;
+          btn.textContent = "Copied!";
+          btn.style.background = "#28a745";
+          setTimeout(() => {
+            btn.textContent = originalText;
+            btn.style.background = "#6c757d";
+          }, 2000);
+        });
+      }
+
+      // Set default background to transparent
+      document.getElementById("colorText").value = "transparent";
+    </script>
+  </body>
+</html>

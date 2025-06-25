@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dynamic Clock</title>
+  <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js"></script>
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Roboto', sans-serif;
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum";
+      color: white;
+    }
+    .clock {
+      font-size: 8vw;
+      font-weight: 500;
+      letter-spacing: 0.1vw;
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@500&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="clock" id="clock"></div>
+
+  <script>
+    const clockEl = document.getElementById("clock");
+    const DateTime = luxon.DateTime;
+
+    // Parse URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const timezone = urlParams.get('tz') || 'Australia/Sydney';
+    const code = urlParams.get('code') || 'SYD';
+    const bgColor = urlParams.get('bg') || 'transparent';
+
+    // Set background color
+    document.body.style.backgroundColor = bgColor;
+
+    function updateClock() {
+      const now = DateTime.now().setZone(timezone);
+      clockEl.textContent = code.toUpperCase() + "  " + now.toFormat("HH:mm:ss");
+    }
+
+    updateClock();
+    setInterval(updateClock, 1000);
+  </script>
+</body>
+</html>

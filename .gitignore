@@ -1,0 +1,45 @@
+# Operating System Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Deployment & Backup Files
+previous/
+current/
+*.backup
+*.old
+caddy-backup-*/
+
+# Log Files
+*.log
+logs/
+
+# Configuration Files (contain sensitive data)
+Caddyfile
+*.env
+.env.*
+
+# Temporary Files
+tmp/
+temp/
+.tmp/
+
+# Node.js (if you add build tools later)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Local development
+localhost.*

@@ -1,0 +1,88 @@
+# Example Caddyfile for Dynamic Timezone Clock
+# Replace 'your-domain.com' with your actual domain
+
+your-domain.com {
+    # Optional: Enable TLS with your email for Let's Encrypt
+    # tls your-email@example.com
+    
+    # Serve the clock application
+    root * /var/www/clock
+    
+    # Handle /config path specifically - serves config.html
+    handle /config {
+        rewrite * /config.html
+        file_server
+    }
+    
+    # Handle root path (with or without parameters) - serves index.html
+    handle / {
+        rewrite * /index.html
+        file_server
+    }
+    
+    # Serve all other files normally
+    file_server
+    
+    # Headers for optimal performance and CORS
+    header {
+        # Prevent caching for dynamic content
+        Cache-Control "no-cache, no-store, must-revalidate"
+        Pragma "no-cache"
+        Expires "0"
+        
+        # CORS headers for embedding in other sites
+        Access-Control-Allow-Origin "*"
+        Access-Control-Allow-Methods "GET, OPTIONS"
+        Access-Control-Allow-Headers "Content-Type"
+    }
+    
+    # Optional: Enable access logging
+    # log {
+    #     output file /var/log/caddy/clock.log
+    #     format json
+    # }
+}
+
+# Example for subdomain setup
+# clock.your-domain.com {
+#     tls your-email@example.com
+#     
+#     root * /var/www/clock
+#     
+#     handle /config {
+#         rewrite * /config.html
+#         file_server
+#     }
+#     
+#     handle / {
+#         rewrite * /index.html
+#         file_server
+#     }
+#     
+#     file_server
+#     
+#     header {
+#         Cache-Control "no-cache, no-store, must-revalidate"
+#         Pragma "no-cache"
+#         Expires "0"
+#         Access-Control-Allow-Origin "*"
+#         Access-Control-Allow-Methods "GET, OPTIONS"
+#         Access-Control-Allow-Headers "Content-Type"
+#     }
+# }
+
+# Example for local development
+# localhost:8080 {
+#     root * ./
+#     file_server
+#     
+#     handle /config {
+#         rewrite * /config.html
+#         file_server
+#     }
+#     
+#     handle / {
+#         rewrite * /index.html
+#         file_server
+#     }
+# }
