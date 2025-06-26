@@ -175,6 +175,18 @@ const localTimezoneMap = {
 };
 ```
 
+## 🌐 Customizing the Generated URL Base
+
+By default, the configuration page now generates clock URLs dynamically using the current domain and protocol. This is achieved with JavaScript in `config.html`:
+
+```js
+let url = `${window.location.origin}/?tz=${encodeURIComponent(timezone)}&code=${encodeURIComponent(code.toUpperCase())}`;
+```
+
+This ensures the generated URL always matches the domain the user is visiting, which is useful if your webhost serves the same files for multiple domains. You do not need to hardcode your domain; the config page will automatically use the correct base URL.
+
+**Reference:** See the `generateURL` function in `config.html` for where this is implemented.
+
 ## 🛠️ Development
 
 ### Prerequisites
