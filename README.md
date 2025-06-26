@@ -239,7 +239,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🙏 Acknowledgments
 
 - [Luxon.js](https://moment.github.io/luxon/) for timezone handling
-- [Google Fonts](https://fonts.google.com/) for Roboto font
+- [Google Fonts](https://fonts.google.com/) for Roboto font (How good are monospaced fonts for clocks.)
 - [WorldTimeAPI](http://worldtimeapi.org/) for timezone data
 - [IANA Timezone Database](https://www.iana.org/time-zones) for timezone standards
 
