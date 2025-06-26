@@ -1164,9 +1164,9 @@
         const bgColor =
           document.getElementById("colorText").value || "transparent";
 
-        let url = `https://clock.efrm.net/?tz=${encodeURIComponent(
+        let url = `${window.location.origin}/?tz=${encodeURIComponent(
           timezone
-        )}&code=${encodeURIComponent(code.toUpperCase())}`;
+        )}&code=${encodeURIComponent(code.toUpperCase())}`; // Uses current domain dynamically. See README.md for details
 
         if (bgColor !== "transparent") {
           url += `&bg=${encodeURIComponent(bgColor)}`;
