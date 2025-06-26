@@ -1,6 +1,6 @@
 # Dynamic Timezone Clock
 
-A simple, lightweight web-based clock that displays time for any timezone with customizable display codes and background colours. Perfect for embedding in websites, OBS overlays, or standalone displays.
+A simple, lightweight browser-based clock that displays time for any timezone with customizable display codes and background colours. Perfect for embedding in websites, OBS overlays, or standalone displays. The clock is based on the system time of the browser viewing the page.
 
 ## ✨ Features
 
@@ -18,8 +18,9 @@ A simple, lightweight web-based clock that displays time for any timezone with c
 ### Option 1: Use GitHub Pages Hosted Version
 Visit the configuration page to generate your custom clock URL:
 ```
-https://yourusername.github.io/dynamic-timezone-clock/config.html
+https://clock.efrm.net/config
 ```
+
 
 ### Option 2: Self-Host with Server Rewrites
 
@@ -27,7 +28,7 @@ For clean URLs like `/config`, you'll need a web server with rewrite capabilitie
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/yourusername/dynamic-timezone-clock.git
+   git clone https://github.com/jackcrombie/dynamic-timezone-clock.git
    cd dynamic-timezone-clock
    ```
 
@@ -232,8 +233,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-- 🐛 **Bug Reports**: [Open an issue](https://github.com/yourusername/dynamic-timezone-clock/issues)
-- 💡 **Feature Requests**: [Open an issue](https://github.com/yourusername/dynamic-timezone-clock/issues)
+- 🐛 **Bug Reports**: [Open an issue](https://github.com/jackcrombie/dynamic-timezone-clock/issues)
+- 💡 **Feature Requests**: [Open an issue](https://github.com/jackcrombie/dynamic-timezone-clock/issues)
 - 📧 **Questions**: Check existing issues or open a new one
 
 ## 🗺️ Roadmap
