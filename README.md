@@ -260,5 +260,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Live Demo:** [https://clock.endframe.net/](https://clock.endframe.net/)  
-**Configuration:** [https://clock.endframe.net/config](https://clock.endframe.net/config)
+**Live Demo:** [https://clock.efrm.net/](https://clock.efrm.net/)  
+**Configuration:** [https://clock.efrm.net/config](https://clock.efrm.net/config)
