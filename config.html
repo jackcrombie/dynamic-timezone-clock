@@ -156,6 +156,7 @@
 
       select,
       input[type="text"],
+      input[type="checkbox"],
       .timezone-input {
         width: 100%;
         padding: 12px 16px;
@@ -163,6 +164,23 @@
         border-radius: 8px;
         font-size: 1em;
         transition: border-color 0.3s ease;
+      }
+
+      input[type="checkbox"] {
+        width: auto;
+        margin-right: 10px;
+        transform: scale(1.2);
+      }
+
+      .checkbox-group {
+        display: flex;
+        align-items: center;
+        padding: 12px 0;
+      }
+
+      .checkbox-group label {
+        margin-bottom: 0;
+        font-weight: 500;
       }
 
       select:focus,
@@ -337,7 +355,7 @@
 
       .preview-frame {
         width: 100%;
-        height: 200px;
+        height: 300px;
         border: 2px solid #dee2e6;
         border-radius: 8px;
         margin-top: 15px;
@@ -345,6 +363,16 @@
 
       .hidden {
         display: none;
+      }
+
+      .weather-note {
+        background: #e3f2fd;
+        border-left: 4px solid #2196f3;
+        padding: 15px;
+        margin-top: 15px;
+        border-radius: 0 8px 8px 0;
+        font-size: 0.9em;
+        color: #1565c0;
       }
     </style>
   </head>
@@ -358,7 +386,7 @@
           />
         </div>
         <h1>🕐 Clock Generator</h1>
-        <p>Create your custom timezone clock</p>
+        <p>Create your custom timezone clock with weather</p>
       </div>
 
       <div class="form-container">
@@ -384,12 +412,14 @@
                 transparent)
               </li>
               <li>
+                <strong>Weather:</strong> Toggle to show current weather conditions
+              </li>
+              <li>
                 <strong>Uses:</strong> Perfect for embedding in websites, OBS,
                 or standalone display
               </li>
               <li>
-                <strong>Updates:</strong> Clock updates every second
-                automatically
+                <strong>Updates:</strong> Clock updates every second, weather every 5 minutes
               </li>
             </ul>
           </div>
@@ -461,6 +491,25 @@
                 value="transparent"
                 placeholder="transparent, black, #000000, rgba(0,0,0,0.5)"
               />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="weather">Weather Display</label>
+            <div class="help-text">
+              Show current weather conditions underneath the clock
+            </div>
+            <div class="checkbox-group">
+              <input
+                type="checkbox"
+                id="weather"
+                name="weather"
+                value="true"
+              />
+              <label for="weather">Display weather information</label>
+            </div>
+            <div class="weather-note">
+              <strong>Weather includes:</strong> Current condition, temperature, wind speed & direction, chance of rain. Updates every 5 minutes using the free Open-Meteo API.
             </div>
           </div>
 
@@ -1163,15 +1212,13 @@
           }
         });
 
-      // Auto-fill code based on timezone selection - no longer needed since timezone is now a text input
-      // (keeping the functionality in selectTimezone function instead)
-
       function generateURL() {
         const timezone =
           document.getElementById("timezone").value || "Australia/Sydney";
         const code = document.getElementById("code").value || "SYD";
         const bgColor =
           document.getElementById("colorText").value || "transparent";
+        const showWeather = document.getElementById("weather").checked;
 
         let url = `${window.location.origin}/?tz=${encodeURIComponent(
           timezone
@@ -1179,6 +1226,10 @@
 
         if (bgColor !== "transparent") {
           url += `&bg=${encodeURIComponent(bgColor)}`;
+        }
+
+        if (showWeather) {
+          url += `&weather=true`;
         }
 
         document.getElementById("generatedURL").textContent = url;

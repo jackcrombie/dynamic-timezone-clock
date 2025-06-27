@@ -4,11 +4,13 @@
   <meta charset="UTF-8">
   <title>Dynamic Clock</title>
   <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js"></script>
+  <script src="timezone-coordinates.js"></script>
   <style>
     html, body {
       margin: 0;
       height: 100%;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       font-family: 'Roboto', sans-serif;
@@ -16,19 +18,69 @@
       font-feature-settings: "tnum";
       color: white;
     }
+    .clock-container {
+      text-align: center;
+    }
     .clock {
       font-size: 8vw;
       font-weight: 500;
       letter-spacing: 0.1vw;
+      margin-bottom: 0.5vw;
+    }
+    .weather-display {
+      font-size: 2.5vw;
+      font-weight: 400;
+      opacity: 0.9;
+      line-height: 1.3;
+      display: none; /* Hidden by default */
+    }
+    .weather-line {
+      margin: 0.2vw 0;
+    }
+    .weather-condition {
+      font-size: 3vw;
+      margin-bottom: 0.3vw;
+    }
+    .weather-details {
+      font-size: 2vw;
+      opacity: 0.8;
+    }
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .weather-display {
+        font-size: 4vw;
+      }
+      .weather-condition {
+        font-size: 5vw;
+      }
+      .weather-details {
+        font-size: 3.5vw;
+      }
     }
   </style>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="clock" id="clock"></div>
+  <div class="clock-container">
+    <div class="clock" id="clock"></div>
+    <div class="weather-display" id="weather">
+      <div class="weather-condition" id="weatherCondition"></div>
+      <div class="weather-details">
+        <div class="weather-line" id="weatherTemp"></div>
+        <div class="weather-line" id="weatherWind"></div>
+        <div class="weather-line" id="weatherRain"></div>
+      </div>
+    </div>
+  </div>
 
   <script>
     const clockEl = document.getElementById("clock");
+    const weatherEl = document.getElementById("weather");
+    const weatherConditionEl = document.getElementById("weatherCondition");
+    const weatherTempEl = document.getElementById("weatherTemp");
+    const weatherWindEl = document.getElementById("weatherWind");
+    const weatherRainEl = document.getElementById("weatherRain");
+    
     const DateTime = luxon.DateTime;
 
     // Parse URL parameters
@@ -36,17 +88,65 @@
     const timezone = urlParams.get('tz') || 'Australia/Sydney';
     const code = urlParams.get('code') || 'SYD';
     const bgColor = urlParams.get('bg') || 'transparent';
+    const showWeather = urlParams.get('weather') === 'true' || urlParams.get('weather') === '1';
 
     // Set background color
     document.body.style.backgroundColor = bgColor;
+
+    // Initialize weather service
+    const weatherService = new WeatherService();
+    let weatherData = null;
 
     function updateClock() {
       const now = DateTime.now().setZone(timezone);
       clockEl.textContent = code.toUpperCase() + "  " + now.toFormat("HH:mm:ss");
     }
 
+    function updateWeather() {
+      if (!showWeather) return;
+      
+      weatherService.getWeatherForTimezone(timezone)
+        .then(data => {
+          weatherData = data;
+          displayWeather(data);
+        })
+        .catch(error => {
+          console.error('Weather update failed:', error);
+          // Show fallback or hide weather
+          weatherEl.style.display = 'none';
+        });
+    }
+
+    function displayWeather(data) {
+      if (!showWeather || !data) {
+        weatherEl.style.display = 'none';
+        return;
+      }
+
+      weatherConditionEl.textContent = data.condition;
+      weatherTempEl.textContent = `${data.temperature}°C`;
+      weatherWindEl.textContent = `Wind: ${data.windSpeed} mph ${data.windCompass}`;
+      weatherRainEl.textContent = `Rain: ${data.precipitationChance}%`;
+      
+      weatherEl.style.display = 'block';
+    }
+
+    // Initialize
     updateClock();
     setInterval(updateClock, 1000);
+
+    // Update weather immediately and then every 5 minutes
+    if (showWeather) {
+      updateWeather();
+      setInterval(updateWeather, 5 * 60 * 1000);
+    }
+
+    // Handle visibility change to pause updates when tab is hidden
+    document.addEventListener('visibilitychange', function() {
+      if (!document.hidden && showWeather) {
+        updateWeather();
+      }
+    });
   </script>
 </body>
 </html>
