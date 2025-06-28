@@ -6,6 +6,8 @@
   <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js"></script>
   <script src="timezone-coordinates.js"></script>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+    
     html, body {
       margin: 0;
       height: 100%;
@@ -17,58 +19,99 @@
       font-variant-numeric: tabular-nums;
       font-feature-settings: "tnum";
       color: white;
+      background: transparent;
     }
+    
     .clock-container {
       text-align: center;
     }
+    
     .clock {
       font-size: 8vw;
       font-weight: 500;
       letter-spacing: 0.1vw;
       margin-bottom: 0.5vw;
+      font-family: 'Roboto', sans-serif;
     }
+    
     .weather-display {
       font-size: 2.5vw;
       font-weight: 400;
       opacity: 0.9;
-      line-height: 1.3;
       display: none; /* Hidden by default */
+      font-family: 'Roboto', sans-serif;
+      margin-top: 1vw;
     }
+    
     .weather-line {
-      margin: 0.2vw 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      white-space: nowrap;
+      min-width: 60vw;
     }
-    .weather-condition {
-      font-size: 3vw;
-      margin-bottom: 0.3vw;
+    
+    .weather-item {
+      flex: 1;
+      text-align: center;
+      padding: 0 1vw;
     }
-    .weather-details {
-      font-size: 2vw;
-      opacity: 0.8;
+    
+    .weather-separator {
+      color: rgba(255, 255, 255, 0.6);
+      font-weight: 300;
+      margin: 0 0.5vw;
     }
+    
     /* Responsive adjustments */
     @media (max-width: 768px) {
       .weather-display {
+        font-size: 3.5vw;
+      }
+      .weather-line {
+        min-width: 90vw;
+      }
+      .weather-item {
+        padding: 0 0.5vw;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .weather-display {
         font-size: 4vw;
       }
-      .weather-condition {
-        font-size: 5vw;
+      .weather-line {
+        min-width: 95vw;
       }
-      .weather-details {
+      .weather-item {
+        padding: 0 0.3vw;
         font-size: 3.5vw;
       }
     }
+    
+    /* High contrast mode for better visibility */
+    @media (prefers-contrast: high) {
+      .weather-display {
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+      }
+      .clock {
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+      }
+    }
   </style>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
   <div class="clock-container">
     <div class="clock" id="clock"></div>
     <div class="weather-display" id="weather">
-      <div class="weather-condition" id="weatherCondition"></div>
-      <div class="weather-details">
-        <div class="weather-line" id="weatherTemp"></div>
-        <div class="weather-line" id="weatherWind"></div>
-        <div class="weather-line" id="weatherRain"></div>
+      <div class="weather-line">
+        <div class="weather-item" id="weatherCondition">Clear</div>
+        <div class="weather-separator">|</div>
+        <div class="weather-item" id="weatherTemp">22°C</div>
+        <div class="weather-separator">|</div>
+        <div class="weather-item" id="weatherWind">5 mph N</div>
+        <div class="weather-separator">|</div>
+        <div class="weather-item" id="weatherRain">0%</div>
       </div>
     </div>
   </div>
@@ -89,6 +132,10 @@
     const code = urlParams.get('code') || 'SYD';
     const bgColor = urlParams.get('bg') || 'transparent';
     const showWeather = urlParams.get('weather') === 'true' || urlParams.get('weather') === '1';
+    
+    // Weather coordinate overrides
+    const weatherLat = urlParams.get('weather_lat');
+    const weatherLon = urlParams.get('weather_lon');
 
     // Set background color
     document.body.style.backgroundColor = bgColor;
@@ -105,15 +152,15 @@
     function updateWeather() {
       if (!showWeather) return;
       
-      weatherService.getWeatherForTimezone(timezone)
+      weatherService.getWeatherForTimezone(timezone, weatherLat, weatherLon)
         .then(data => {
           weatherData = data;
           displayWeather(data);
         })
         .catch(error => {
           console.error('Weather update failed:', error);
-          // Show fallback or hide weather
-          weatherEl.style.display = 'none';
+          // Show fallback weather instead of hiding
+          displayWeather(weatherService.getFallbackWeather(timezone));
         });
     }
 
@@ -123,12 +170,20 @@
         return;
       }
 
+      // Format weather into single line with pipe separators
       weatherConditionEl.textContent = data.condition;
       weatherTempEl.textContent = `${data.temperature}°C`;
-      weatherWindEl.textContent = `Wind: ${data.windSpeed} mph ${data.windCompass}`;
-      weatherRainEl.textContent = `Rain: ${data.precipitationChance}%`;
+      weatherWindEl.textContent = `${data.windSpeed} mph ${data.windCompass}`;
+      weatherRainEl.textContent = `${data.precipitationChance}%`;
       
       weatherEl.style.display = 'block';
+      
+      // Log weather data for debugging
+      if (weatherLat && weatherLon) {
+        console.log(`Weather data for custom coordinates (${weatherLat}, ${weatherLon}):`, data);
+      } else {
+        console.log(`Weather data for ${timezone}:`, data);
+      }
     }
 
     // Initialize
@@ -137,6 +192,15 @@
 
     // Update weather immediately and then every 5 minutes
     if (showWeather) {
+      // Log coordinate source
+      if (weatherLat && weatherLon) {
+        console.log(`Using custom weather coordinates: ${weatherLat}, ${weatherLon}`);
+      } else if (hasWeatherCoordinates(timezone)) {
+        console.log(`Using built-in coordinates for timezone: ${timezone}`);
+      } else {
+        console.log(`Warning: No built-in coordinates for timezone: ${timezone}`);
+      }
+      
       updateWeather();
       setInterval(updateWeather, 5 * 60 * 1000);
     }
@@ -146,6 +210,11 @@
       if (!document.hidden && showWeather) {
         updateWeather();
       }
+    });
+
+    // Handle errors gracefully
+    window.addEventListener('error', function(e) {
+      console.error('Clock error:', e.error);
     });
   </script>
 </body>
