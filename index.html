@@ -4,31 +4,126 @@
   <meta charset="UTF-8">
   <title>Dynamic Clock</title>
   <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js"></script>
+  <script src="timezone-coordinates.js"></script>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+    
     html, body {
       margin: 0;
       height: 100%;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       font-family: 'Roboto', sans-serif;
       font-variant-numeric: tabular-nums;
       font-feature-settings: "tnum";
       color: white;
+      background: transparent;
     }
+    
+    .clock-container {
+      text-align: center;
+    }
+    
     .clock {
       font-size: 8vw;
       font-weight: 500;
       letter-spacing: 0.1vw;
+      margin-bottom: 0.5vw;
+      font-family: 'Roboto', sans-serif;
+    }
+    
+    .weather-display {
+      font-size: 2.5vw;
+      font-weight: 400;
+      opacity: 0.9;
+      display: none; /* Hidden by default */
+      font-family: 'Roboto', sans-serif;
+      margin-top: 1vw;
+    }
+    
+    .weather-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      white-space: nowrap;
+      min-width: 60vw;
+    }
+    
+    .weather-item {
+      flex: 1;
+      text-align: center;
+      padding: 0 1vw;
+    }
+    
+    .weather-separator {
+      color: rgba(255, 255, 255, 0.6);
+      font-weight: 300;
+      margin: 0 0.5vw;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .weather-display {
+        font-size: 3.5vw;
+      }
+      .weather-line {
+        min-width: 90vw;
+      }
+      .weather-item {
+        padding: 0 0.5vw;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .weather-display {
+        font-size: 4vw;
+      }
+      .weather-line {
+        min-width: 95vw;
+      }
+      .weather-item {
+        padding: 0 0.3vw;
+        font-size: 3.5vw;
+      }
+    }
+    
+    /* High contrast mode for better visibility */
+    @media (prefers-contrast: high) {
+      .weather-display {
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+      }
+      .clock {
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+      }
     }
   </style>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@500&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="clock" id="clock"></div>
+  <div class="clock-container">
+    <div class="clock" id="clock"></div>
+    <div class="weather-display" id="weather">
+      <div class="weather-line">
+        <div class="weather-item" id="weatherCondition">Clear</div>
+        <div class="weather-separator">|</div>
+        <div class="weather-item" id="weatherTemp">22°C</div>
+        <div class="weather-separator">|</div>
+        <div class="weather-item" id="weatherWind">5 mph N</div>
+        <div class="weather-separator">|</div>
+        <div class="weather-item" id="weatherRain">0%</div>
+      </div>
+    </div>
+  </div>
 
   <script>
     const clockEl = document.getElementById("clock");
+    const weatherEl = document.getElementById("weather");
+    const weatherConditionEl = document.getElementById("weatherCondition");
+    const weatherTempEl = document.getElementById("weatherTemp");
+    const weatherWindEl = document.getElementById("weatherWind");
+    const weatherRainEl = document.getElementById("weatherRain");
+    
     const DateTime = luxon.DateTime;
 
     // Parse URL parameters
@@ -36,17 +131,91 @@
     const timezone = urlParams.get('tz') || 'Australia/Sydney';
     const code = urlParams.get('code') || 'SYD';
     const bgColor = urlParams.get('bg') || 'transparent';
+    const showWeather = urlParams.get('weather') === 'true' || urlParams.get('weather') === '1';
+    
+    // Weather coordinate overrides
+    const weatherLat = urlParams.get('weather_lat');
+    const weatherLon = urlParams.get('weather_lon');
 
     // Set background color
     document.body.style.backgroundColor = bgColor;
+
+    // Initialize weather service
+    const weatherService = new WeatherService();
+    let weatherData = null;
 
     function updateClock() {
       const now = DateTime.now().setZone(timezone);
       clockEl.textContent = code.toUpperCase() + "  " + now.toFormat("HH:mm:ss");
     }
 
+    function updateWeather() {
+      if (!showWeather) return;
+      
+      weatherService.getWeatherForTimezone(timezone, weatherLat, weatherLon)
+        .then(data => {
+          weatherData = data;
+          displayWeather(data);
+        })
+        .catch(error => {
+          console.error('Weather update failed:', error);
+          // Show fallback weather instead of hiding
+          displayWeather(weatherService.getFallbackWeather(timezone));
+        });
+    }
+
+    function displayWeather(data) {
+      if (!showWeather || !data) {
+        weatherEl.style.display = 'none';
+        return;
+      }
+
+      // Format weather into single line with pipe separators
+      weatherConditionEl.textContent = data.condition;
+      weatherTempEl.textContent = `${data.temperature}°C`;
+      weatherWindEl.textContent = `${data.windSpeed} mph ${data.windCompass}`;
+      weatherRainEl.textContent = `${data.precipitationChance}%`;
+      
+      weatherEl.style.display = 'block';
+      
+      // Log weather data for debugging
+      if (weatherLat && weatherLon) {
+        console.log(`Weather data for custom coordinates (${weatherLat}, ${weatherLon}):`, data);
+      } else {
+        console.log(`Weather data for ${timezone}:`, data);
+      }
+    }
+
+    // Initialize
     updateClock();
     setInterval(updateClock, 1000);
+
+    // Update weather immediately and then every 5 minutes
+    if (showWeather) {
+      // Log coordinate source
+      if (weatherLat && weatherLon) {
+        console.log(`Using custom weather coordinates: ${weatherLat}, ${weatherLon}`);
+      } else if (hasWeatherCoordinates(timezone)) {
+        console.log(`Using built-in coordinates for timezone: ${timezone}`);
+      } else {
+        console.log(`Warning: No built-in coordinates for timezone: ${timezone}`);
+      }
+      
+      updateWeather();
+      setInterval(updateWeather, 5 * 60 * 1000);
+    }
+
+    // Handle visibility change to pause updates when tab is hidden
+    document.addEventListener('visibilitychange', function() {
+      if (!document.hidden && showWeather) {
+        updateWeather();
+      }
+    });
+
+    // Handle errors gracefully
+    window.addEventListener('error', function(e) {
+      console.error('Clock error:', e.error);
+    });
   </script>
 </body>
 </html>
