@@ -109,7 +109,7 @@
         <div class="weather-separator">|</div>
         <div class="weather-item" id="weatherTemp">22°C</div>
         <div class="weather-separator">|</div>
-        <div class="weather-item" id="weatherWind">5 mph N</div>
+        <div class="weather-item" id="weatherWind">5 kph N</div>
         <div class="weather-separator">|</div>
         <div class="weather-item" id="weatherRain">0%</div>
       </div>
@@ -133,12 +133,20 @@
     const bgColor = urlParams.get('bg') || 'transparent';
     const showWeather = urlParams.get('weather') === 'true' || urlParams.get('weather') === '1';
     
+
     // Weather coordinate overrides
     const weatherLat = urlParams.get('weather_lat');
     const weatherLon = urlParams.get('weather_lon');
 
+    // Weather unit selection
+    const tempUnit = urlParams.get('temp_unit') ? urlParams.get('temp_unit').toUpperCase() : 'C'; // 'C' or 'F'
+    let windUnit = urlParams.get('wind_unit') ? urlParams.get('wind_unit').toUpperCase() : 'KPH'; // 'KPH', 'MPH', 'MS'
+    // Accept both KPH and KMH as synonyms
+    if (windUnit === 'KMH') windUnit = 'KPH';
+
     // Set background color
     document.body.style.backgroundColor = bgColor;
+
 
     // Initialize weather service
     const weatherService = new WeatherService();
@@ -149,10 +157,10 @@
       clockEl.textContent = code.toUpperCase() + "  " + now.toFormat("HH:mm:ss");
     }
 
+
     function updateWeather() {
       if (!showWeather) return;
-      
-      weatherService.getWeatherForTimezone(timezone, weatherLat, weatherLon)
+      weatherService.getWeatherForTimezone(timezone, weatherLat, weatherLon, tempUnit, windUnit)
         .then(data => {
           weatherData = data;
           displayWeather(data);
@@ -160,7 +168,7 @@
         .catch(error => {
           console.error('Weather update failed:', error);
           // Show fallback weather instead of hiding
-          displayWeather(weatherService.getFallbackWeather(timezone));
+          displayWeather(weatherService.getFallbackWeather(timezone, tempUnit, windUnit));
         });
     }
 
@@ -170,14 +178,32 @@
         return;
       }
 
-      // Format weather into single line with pipe separators
+      // Format temperature
+      let tempValue = data.temperature;
+      let tempSuffix = '°C';
+      if (tempUnit === 'F') {
+        tempValue = Math.round((data.temperature * 9/5) + 32);
+        tempSuffix = '°F';
+      }
+
+      // Format wind speed
+      let windValue = data.windSpeed;
+      let windSuffix = 'kph';
+      if (windUnit === 'MPH') {
+        windValue = Math.round(data.windSpeed * 0.621371);
+        windSuffix = 'mph';
+      } else if (windUnit === 'MS') {
+        windValue = Math.round(data.windSpeed / 3.6);
+        windSuffix = 'm/s';
+      }
+
       weatherConditionEl.textContent = data.condition;
-      weatherTempEl.textContent = `${data.temperature}°C`;
-      weatherWindEl.textContent = `${data.windSpeed} mph ${data.windCompass}`;
+      weatherTempEl.textContent = `${tempValue}${tempSuffix}`;
+      weatherWindEl.textContent = `${windValue} ${windSuffix} ${data.windCompass}`;
       weatherRainEl.textContent = `${data.precipitationChance}%`;
-      
+
       weatherEl.style.display = 'block';
-      
+
       // Log weather data for debugging
       if (weatherLat && weatherLon) {
         console.log(`Weather data for custom coordinates (${weatherLat}, ${weatherLon}):`, data);

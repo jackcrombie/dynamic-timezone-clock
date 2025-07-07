@@ -121,11 +121,10 @@ class WeatherService {
     this.cacheDuration = 5 * 60 * 1000; // 5 minutes
   }
 
-  async getWeatherForTimezone(timezone, overrideLat = null, overrideLon = null) {
+  async getWeatherForTimezone(timezone, overrideLat = null, overrideLon = null, tempUnit = 'C', windUnit = 'KPH') {
     try {
-      // Check cache first (use timezone + coordinates as cache key for overrides)
-      const cacheKey = overrideLat && overrideLon ? 
-        `${timezone}_${overrideLat}_${overrideLon}` : timezone;
+      // Check cache first (use timezone + coordinates + units as cache key for overrides)
+      const cacheKey = `${timezone}_${overrideLat || ''}_${overrideLon || ''}_${tempUnit}_${windUnit}`;
       const cached = this.getFromCache(cacheKey);
       if (cached) return cached;
 
@@ -140,17 +139,14 @@ class WeatherService {
       } else {
         coords = this.getCoordinatesForTimezone(timezone);
       }
-      
       // Fetch weather
-      const weatherData = await this.fetchWeatherData(coords);
-      
+      const weatherData = await this.fetchWeatherData(coords, tempUnit, windUnit);
       // Cache result
       this.setCache(cacheKey, weatherData);
-      
       return weatherData;
     } catch (error) {
       console.error('Weather fetch error:', error);
-      return this.getFallbackWeather(timezone);
+      return this.getFallbackWeather(timezone, tempUnit, windUnit);
     }
   }
 
@@ -165,14 +161,23 @@ class WeatherService {
     return coords;
   }
 
-  async fetchWeatherData({ lat, lon }) {
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_direction_10m,weather_code&hourly=precipitation_probability&timezone=auto`;
-    
+  async fetchWeatherData({ lat, lon }, tempUnit = 'C', windUnit = 'KPH') {
+    // Open-Meteo API: temperature_unit (celsius/fahrenheit), windspeed_unit (kmh/ms/mph)
+    let temperature_unit = (tempUnit === 'F') ? 'fahrenheit' : 'celsius';
+    let windspeed_unit = 'kmh';
+    if (windUnit === 'MPH') windspeed_unit = 'mph';
+    else if (windUnit === 'MS') windspeed_unit = 'ms';
+
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
+      `&current=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_direction_10m,weather_code` +
+      `&hourly=precipitation_probability&timezone=auto` +
+      `&temperature_unit=${temperature_unit}&windspeed_unit=${windspeed_unit}`;
+
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error(`Weather API error: ${response.status}`);
     }
-    
+
     const data = await response.json();
     return this.formatWeatherData(data);
   }
@@ -180,11 +185,10 @@ class WeatherService {
   formatWeatherData(data) {
     const current = data.current;
     const precipitation = data.hourly.precipitation_probability[0] || 0;
-    
     return {
       temperature: Math.round(current.temperature_2m),
       humidity: current.relative_humidity_2m,
-      windSpeed: Math.round(current.wind_speed_10m * 2.237), // Convert m/s to mph
+      windSpeed: Math.round(current.wind_speed_10m),
       windDirection: current.wind_direction_10m,
       windCompass: this.degreesToCompass(current.wind_direction_10m),
       precipitationChance: precipitation,
@@ -238,11 +242,17 @@ class WeatherService {
     });
   }
 
-  getFallbackWeather(timezone) {
+  getFallbackWeather(timezone, tempUnit = 'C', windUnit = 'KPH') {
+    // Provide fallback in requested units
+    let temperature = 20;
+    if (tempUnit === 'F') temperature = Math.round((temperature * 9/5) + 32);
+    let windSpeed = 5;
+    if (windUnit === 'MPH') windSpeed = Math.round(windSpeed * 0.621371);
+    else if (windUnit === 'MS') windSpeed = Math.round(windSpeed / 3.6);
     return {
-      temperature: 20,
+      temperature,
       humidity: 50,
-      windSpeed: 5,
+      windSpeed,
       windDirection: 180,
       windCompass: 'S',
       precipitationChance: 0,

@@ -13,6 +13,15 @@ A simple, lightweight browser-based clock that displays time for any timezone wi
 - 🔗 **URL Parameters** - Simple query string configuration
 - 🎯 **Zero Dependencies** - Just HTML, CSS, and JavaScript (uses Luxon.js from CDN)
 
+---
+
+- ☁️ **Weather Display** - Show current weather (temperature, wind, rain chance, condition) for any supported timezone or custom coordinates
+- 🌡️ **Selectable Units** - Choose temperature (°C/°F) and wind speed (KPH/MPH/m/s) units; units are respected in both API fetch and display
+- 🗺️ **Instant Coordinate Lookup** - AU/NZ and major world cities have instant fallback for weather coordinates
+- 🧭 **Custom Weather Location** - Override weather location with your own latitude/longitude
+- 🧩 **Live Preview with Transparency Checkerboard** - Preview window shows a crosshatch pattern when background is transparent, so you can see transparency in action
+- 📝 **All Weather Options via URL** - Use `weather=true`, `temp_unit`, `wind_unit`, `weather_lat`, and `weather_lon` in the URL for full control
+
 ## 🚀 Quick Start
 
 ### Option 1: Use GitHub Pages Hosted Version

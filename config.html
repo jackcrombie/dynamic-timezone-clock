@@ -384,12 +384,32 @@
         background: #495057;
       }
 
-      .preview-frame {
+      .preview-frame-wrapper {
+        position: relative;
         width: 100%;
         height: 300px;
-        border: 2px solid #dee2e6;
-        border-radius: 8px;
         margin-top: 15px;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 2px solid #dee2e6;
+      }
+
+      .crosshatch-bg {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        z-index: 0;
+        background: repeating-conic-gradient(#e0e0e0 0% 25%, transparent 0% 50%) 50% / 32px 32px;
+        opacity: 0.7;
+      }
+
+      .preview-frame {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        border: none;
+        border-radius: 8px;
+        background: transparent;
+        z-index: 1;
       }
 
       .hidden {
@@ -589,8 +609,26 @@
               />
               <label for="weather">Display weather information</label>
             </div>
+            <div class="form-row" style="margin-top:10px;">
+              <div class="form-group" style="flex:1;min-width:120px;">
+                <label for="tempUnit">Temperature Unit</label>
+                <select id="tempUnit" name="tempUnit">
+                  <option value="C" selected>°C (Celsius)</option>
+                  <option value="F">°F (Fahrenheit)</option>
+                </select>
+              </div>
+              <div class="form-group" style="flex:1;min-width:120px;">
+                <label for="windUnit">Wind Speed Unit</label>
+                <select id="windUnit" name="windUnit">
+                  <option value="kph" selected>KPH (km/h)</option>
+                  <option value="mph">MPH (miles/h)</option>
+                  <option value="ms">m/s (meters/sec)</option>
+                </select>
+              </div>
+            </div>
             <div class="weather-note">
               <strong>Weather Format:</strong> Conditions | Temperature | Wind | Rain %<br>
+              <strong>Units:</strong> Temperature (<span id="tempUnitLabel">°C</span>), Wind (<span id="windUnitLabel">KPH</span>)<br>
               <strong>Data Source:</strong> Free Open-Meteo API, updates every 5 minutes
             </div>
           </div>
@@ -632,6 +670,13 @@
                 Examples: Sydney (-33.8679, 151.2073) | New York (40.7128, -74.0060) | London (51.5074, -0.1278)
               </div>
             </div>
+            <div style="margin-top:16px;text-align:center">
+              <iframe id="osmMapEmbed" style="width:100%;height:250px;border:1px solid #ccc;border-radius:8px;" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://www.openstreetmap.org/export/embed.html?bbox=151.0573%2C-34.0679%2C151.3573%2C-33.6679&amp;layer=mapnik&amp;marker=-33.8679%2C151.2073" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+              <div style="font-size:0.9em;margin-top:4px;">
+                <a id="osmLargerMapLink" href="https://www.openstreetmap.org/#map=10/-33.8679/151.2073" target="_blank" rel="noopener">View Larger Map</a>
+              </div>
+              <div style="font-size:0.85em;color:#888;margin-top:2px;">Location preview (OpenStreetMap)</div>
+            </div>
           </div>
 
           <div class="buttons">
@@ -650,16 +695,20 @@
             <span id="generatedURL"></span>
             <button class="copy-btn" onclick="copyURL()">Copy</button>
           </div>
-          <iframe id="preview" class="preview-frame hidden"></iframe>
+          <div id="previewFrameWrapper" class="preview-frame-wrapper hidden">
+            <div class="crosshatch-bg" id="crosshatchBg"></div>
+            <iframe id="preview" class="preview-frame"></iframe>
+          </div>
         </div>
       </div>
     </div>
 
     <footer style="text-align:center; margin: 24px 0 12px 0; font-size: 1em; color: #888; font-family: 'Roboto', sans-serif;">
-      <a href="https://github.com/eframe-co/dynamic-timezone-clock" target="_blank" rel="noopener noreferrer" style="color: #2c3e50; text-decoration: none;">
+      <a href="https://github.com/jackcrombie/dynamic-timezone-clock" target="_blank" rel="noopener noreferrer" style="color: #2c3e50; text-decoration: none;">
         View on GitHub
       </a>
     </footer>
+
 
     <script>
       // Echo the detected domain to the JS console
@@ -1120,17 +1169,84 @@
 
       let currentSuggestionIndex = -1;
 
+      // Fallback coordinates for common timezones if TIMEZONE_COORDINATES is missing
+      const FALLBACK_COORDINATES = {
+        // Australia major cities/timezones
+        "Australia/Sydney": { lat: -33.8679, lon: 151.2073 },
+        "Australia/Melbourne": { lat: -37.8136, lon: 144.9631 },
+        "Australia/Brisbane": { lat: -27.4698, lon: 153.0251 },
+        "Australia/Perth": { lat: -31.9505, lon: 115.8605 },
+        "Australia/Adelaide": { lat: -34.9285, lon: 138.6007 },
+        "Australia/Hobart": { lat: -42.8821, lon: 147.3272 },
+        "Australia/Darwin": { lat: -12.4634, lon: 130.8456 },
+        "Australia/Broken_Hill": { lat: -31.9530, lon: 141.4535 },
+        "Australia/Lord_Howe": { lat: -31.5183, lon: 159.0833 },
+        "Australia/Eucla": { lat: -31.7172, lon: 128.8853 },
+        "Australia/Currie": { lat: -39.9308, lon: 143.8503 },
+        "Australia/Lindeman": { lat: -20.4411, lon: 149.0450 },
+        // New Zealand
+        "Pacific/Auckland": { lat: -36.8485, lon: 174.7633 },
+        "Pacific/Chatham": { lat: -43.9510, lon: -176.5630 },
+        // Other major world cities/timezones
+        "America/New_York": { lat: 40.7128, lon: -74.0060 },
+        "Europe/London": { lat: 51.5074, lon: -0.1278 },
+        "Europe/Paris": { lat: 48.8566, lon: 2.3522 },
+        "Asia/Tokyo": { lat: 35.6895, lon: 139.6917 },
+        "America/Los_Angeles": { lat: 34.0522, lon: -118.2437 },
+        "Europe/Berlin": { lat: 52.52, lon: 13.405 },
+        "Asia/Singapore": { lat: 1.3521, lon: 103.8198 },
+        "America/Chicago": { lat: 41.8781, lon: -87.6298 },
+        "America/Denver": { lat: 39.7392, lon: -104.9903 },
+        "America/Phoenix": { lat: 33.4484, lon: -112.074 },
+        "America/Toronto": { lat: 43.6532, lon: -79.3832 },
+        "Europe/Moscow": { lat: 55.7558, lon: 37.6173 }
+      };
+
+      // Helper to get coordinates for a timezone
+      function getCoordinatesForTimezone(tz) {
+        // 1. Fallback first for AU/NZ/major cities (for instant UI)
+        if (FALLBACK_COORDINATES[tz]) {
+          return FALLBACK_COORDINATES[tz];
+        }
+        // 2. If not in fallback, try timezone-coordinates.js
+        if (window.TIMEZONE_COORDINATES && window.TIMEZONE_COORDINATES[tz]) {
+          return window.TIMEZONE_COORDINATES[tz];
+        }
+        return null;
+      }
+
+      // Show warning if no coordinates data is loaded
+      function showCoordinatesWarning() {
+        let warn = document.getElementById('coordinatesWarning');
+        if (!warn) {
+          warn = document.createElement('div');
+          warn.id = 'coordinatesWarning';
+          warn.style = 'background:#fff3cd;border-left:4px solid #ffc107;padding:12px 16px;margin:10px 0 0 0;border-radius:0 8px 8px 0;font-size:0.95em;color:#856404;';
+          warn.innerHTML = '<b>Warning:</b> Built-in timezone coordinates are missing. Only a few common timezones will auto-fill coordinates.';
+          document.querySelector('.form-container').prepend(warn);
+        }
+      }
+
       // Check weather coordinate availability and update status
       function updateWeatherStatus(timezone) {
         const statusEl = document.getElementById("weatherStatus");
         const indicator = statusEl.querySelector(".status-indicator");
-        
-        if (hasWeatherCoordinates(timezone)) {
+        if (window.TIMEZONE_COORDINATES) {
+          if (window.TIMEZONE_COORDINATES[timezone]) {
+            indicator.className = "status-indicator status-available";
+            statusEl.innerHTML = '<span class="status-indicator status-available"></span>Weather coordinates available';
+          } else {
+            indicator.className = "status-indicator status-unavailable";
+            statusEl.innerHTML = '<span class="status-indicator status-unavailable"></span>No built-in coordinates - use custom coordinates for weather';
+          }
+        } else if (FALLBACK_COORDINATES[timezone]) {
           indicator.className = "status-indicator status-available";
-          statusEl.innerHTML = '<span class="status-indicator status-available"></span>Weather coordinates available';
+          statusEl.innerHTML = '<span class="status-indicator status-available"></span>Weather coordinates available (fallback)';
+          showCoordinatesWarning();
         } else {
           indicator.className = "status-indicator status-unavailable";
-          statusEl.innerHTML = '<span class="status-indicator status-unavailable"></span>No built-in coordinates - use custom coordinates for weather';
+          statusEl.innerHTML = '<span class="status-indicator status-unavailable"></span>No coordinates for this timezone';
+          showCoordinatesWarning();
         }
       }
 
@@ -1166,9 +1282,50 @@
           currentSuggestionIndex = -1;
         });
 
-      // Update weather status when timezone changes
+      // Update weather status and coordinates when timezone changes (typing, blur, or manual entry)
+      function handleTimezoneFieldUpdate(forceCoords) {
+        const tz = document.getElementById("timezone").value;
+        updateWeatherStatus(tz);
+        const weatherChecked = document.getElementById("weather").checked;
+        const coordinateGroup = document.getElementById("coordinateOverrideGroup");
+        const latField = document.getElementById("weatherLat");
+        const lonField = document.getElementById("weatherLon");
+        if (weatherChecked) {
+          coordinateGroup.style.display = "block";
+          let coords = getCoordinatesForTimezone(tz);
+          if (coords && (forceCoords || !latField.value || !lonField.value)) {
+            latField.value = coords.lat;
+            lonField.value = coords.lon;
+            if (typeof updateOsmMapEmbed === 'function') {
+              updateOsmMapEmbed(coords.lat, coords.lon);
+            }
+          } else {
+            // If user has entered custom values or no built-in coords, update map if possible
+            const lat = parseFloat(latField.value);
+            const lon = parseFloat(lonField.value);
+            if (!isNaN(lat) && !isNaN(lon) && typeof updateOsmMapEmbed === 'function') {
+              updateOsmMapEmbed(lat, lon);
+            }
+          }
+        } else {
+          coordinateGroup.style.display = "none";
+        }
+      }
+
       document.getElementById("timezone").addEventListener("change", function(e) {
-        updateWeatherStatus(e.target.value);
+        handleTimezoneFieldUpdate(true);
+      });
+      document.getElementById("timezone").addEventListener("input", function(e) {
+        handleTimezoneFieldUpdate(false);
+      });
+      document.getElementById("timezone").addEventListener("blur", function(e) {
+        handleTimezoneFieldUpdate(true);
+      });
+      // Also update on Enter key (confirm selection)
+      document.getElementById("timezone").addEventListener("keydown", function(e) {
+        if (e.key === "Enter") {
+          handleTimezoneFieldUpdate(true);
+        }
       });
 
       // Handle keyboard navigation
@@ -1336,6 +1493,9 @@
             document.getElementById("code").value = code;
           }
         });
+
+        // Force update coordinates and map for the selected timezone
+        handleTimezoneFieldUpdate(true);
       }
 
       // Hide suggestions when clicking outside
@@ -1353,6 +1513,8 @@
         const coordinateGroup = document.getElementById("coordinateOverrideGroup");
         if (e.target.checked) {
           coordinateGroup.style.display = "block";
+          // When enabling weather, always set lat/lon and map for current timezone
+          handleTimezoneFieldUpdate(true);
         } else {
           coordinateGroup.style.display = "none";
         }
@@ -1391,6 +1553,8 @@
         const showWeather = document.getElementById("weather").checked;
         const weatherLat = document.getElementById("weatherLat").value;
         const weatherLon = document.getElementById("weatherLon").value;
+        const tempUnit = document.getElementById("tempUnit") ? document.getElementById("tempUnit").value : "C";
+        const windUnit = document.getElementById("windUnit") ? document.getElementById("windUnit").value : "kph";
 
         let url = `${window.location.origin}/?tz=${encodeURIComponent(
           timezone
@@ -1402,7 +1566,8 @@
 
         if (showWeather) {
           url += `&weather=true`;
-          
+          url += `&temp_unit=${encodeURIComponent(tempUnit)}`;
+          url += `&wind_unit=${encodeURIComponent(windUnit)}`;
           // Add custom coordinates if provided
           if (weatherLat && weatherLon) {
             url += `&weather_lat=${encodeURIComponent(weatherLat)}`;
@@ -1412,14 +1577,19 @@
 
         document.getElementById("generatedURL").textContent = url;
         document.getElementById("output").classList.remove("hidden");
-        document.getElementById("preview").classList.add("hidden");
+        document.getElementById("previewFrameWrapper").classList.add("hidden");
       }
 
       function previewClock() {
         generateURL();
         const url = document.getElementById("generatedURL").textContent;
+        // Always show the preview wrapper
+        const wrapper = document.getElementById("previewFrameWrapper");
+        wrapper.classList.remove("hidden");
+        // Show/hide crosshatch only if transparent
+        const isTransparent = document.getElementById("colorText").value.trim().toLowerCase() === "transparent";
+        document.getElementById("crosshatchBg").style.display = isTransparent ? "block" : "none";
         document.getElementById("preview").src = url;
-        document.getElementById("preview").classList.remove("hidden");
       }
 
       function copyURL() {
@@ -1440,9 +1610,87 @@
       document.addEventListener("DOMContentLoaded", function() {
         // Set default background to transparent
         document.getElementById("colorText").value = "transparent";
-        
         // Update initial weather status
         updateWeatherStatus("Australia/Sydney");
+
+        // Update weather unit labels in the note
+      // Weather data is received as Celsius and MPH from the API.
+      // Update labels to reflect this, and warn if user selects a unit that requires conversion.
+      function updateWeatherUnitLabels() {
+        const tempUnit = document.getElementById("tempUnit") ? document.getElementById("tempUnit").value : "C";
+        const windUnit = document.getElementById("windUnit") ? document.getElementById("windUnit").value : "mph";
+        document.getElementById("tempUnitLabel").textContent = tempUnit === "C" ? "°C" : "°F";
+        let windLabel = "MPH";
+        if (windUnit === "kph") windLabel = "KPH";
+        else if (windUnit === "ms") windLabel = "m/s";
+        document.getElementById("windUnitLabel").textContent = windLabel;
+
+        // Show a warning if conversion will be needed
+        let warn = document.getElementById('unitConversionWarning');
+        if ((tempUnit === 'F' || windUnit !== 'mph') && document.querySelector('.weather-note')) {
+          if (!warn) {
+            warn = document.createElement('div');
+            warn.id = 'unitConversionWarning';
+            warn.style = 'background:#fff3cd;border-left:4px solid #ffc107;padding:10px 16px;margin:8px 0 0 0;border-radius:0 8px 8px 0;font-size:0.95em;color:#856404;';
+            warn.innerHTML = '<b>Note:</b> Weather data is received as <b>°C</b> and <b>MPH</b> from the API. Other units will be converted in the display.';
+            document.querySelector('.weather-note').parentNode.insertBefore(warn, document.querySelector('.weather-note').nextSibling);
+          }
+        } else if (warn) {
+          warn.remove();
+        }
+      }
+        if (document.getElementById("tempUnit")) {
+          document.getElementById("tempUnit").addEventListener("change", updateWeatherUnitLabels);
+        }
+        if (document.getElementById("windUnit")) {
+          document.getElementById("windUnit").addEventListener("change", updateWeatherUnitLabels);
+        }
+        updateWeatherUnitLabels();
+
+        // Helper to update OSM map and link when coordinates change
+        window.updateOsmMapEmbed = function updateOsmMapEmbed(lat, lon) {
+          const delta = 0.15;
+          const bbox = [
+            (lon - delta).toFixed(4),
+            (lat - delta).toFixed(4),
+            (lon + delta).toFixed(4),
+            (lat + delta).toFixed(4)
+          ].join('%2C');
+          const marker = `${lat},${lon}`;
+          document.getElementById("osmMapEmbed").src = `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${marker}`;
+          document.getElementById("osmLargerMapLink").href = `https://www.openstreetmap.org/#map=10/${lat}/${lon}`;
+        }
+
+        // When coordinate fields change, update the map
+        document.getElementById("weatherLat").addEventListener("input", function() {
+          const lat = parseFloat(document.getElementById("weatherLat").value);
+          const lon = parseFloat(document.getElementById("weatherLon").value);
+          if (!isNaN(lat) && !isNaN(lon)) {
+            updateOsmMapEmbed(lat, lon);
+          }
+        });
+        document.getElementById("weatherLon").addEventListener("input", function() {
+          const lat = parseFloat(document.getElementById("weatherLat").value);
+          const lon = parseFloat(document.getElementById("weatherLon").value);
+          if (!isNaN(lat) && !isNaN(lon)) {
+            updateOsmMapEmbed(lat, lon);
+          }
+        });
+
+        // When timezone changes, update the coordinates and map
+        function setWeatherCoordinatesForTimezone(timezone) {
+          // Always force update when called directly
+          handleTimezoneFieldUpdate(true);
+        }
+
+        // Attach to global for use in other handlers
+        window.setWeatherCoordinatesForTimezone = setWeatherCoordinatesForTimezone;
+
+        // On page load, if weather is checked, show coordinate group and set lat/lon/map for default tz
+        if (document.getElementById("weather").checked) {
+          document.getElementById("coordinateOverrideGroup").style.display = "block";
+          handleTimezoneFieldUpdate(true);
+        }
       });
     </script>
   </body>
