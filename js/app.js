@@ -1,5 +1,5 @@
 
-import { TIMEZONE_COORDINATES, IANA_TIMEZONES, LOCAL_TIMEZONE_CODE_MAP, FALLBACK_COORDINATES } from './timezone-data.js';
+
 
 // --- SERVICES ---
 
@@ -142,16 +142,15 @@ document.addEventListener('DOMContentLoaded', () => {
 function initClockPage() {
     const clockEl = document.getElementById("clock");
     const weatherEl = document.getElementById("weather");
-    const weatherConditionEl = document.getElementById("weatherCondition");
-    const weatherTempEl = document.getElementById("weatherTemp");
-    const weatherWindEl = document.getElementById("weatherWind");
-    const weatherRainEl = document.getElementById("weatherRain");
+    const weatherLineEl = document.querySelector(".weather-line");
 
     const DateTime = luxon.DateTime;
     const urlParams = new URLSearchParams(window.location.search);
     const timezone = urlParams.get('tz') || 'Australia/Sydney';
     const code = urlParams.get('code') || 'SYD';
     const bgColor = urlParams.get('bg') || 'transparent';
+    const clockColor = urlParams.get('clock_color') || '#FFFFFF';
+    const weatherColor = urlParams.get('weather_color') || '#FFFFFF';
     const showWeather = urlParams.get('weather') === 'true';
     const weatherLat = urlParams.get('weather_lat');
     const weatherLon = urlParams.get('weather_lon');
@@ -159,6 +158,8 @@ function initClockPage() {
     const windUnit = urlParams.get('wind_unit') || 'kph';
 
     document.body.style.backgroundColor = bgColor;
+    clockEl.style.color = clockColor;
+    weatherEl.style.color = weatherColor;
 
     const weatherService = new WeatherService();
 
@@ -172,10 +173,15 @@ function initClockPage() {
             weatherEl.style.display = 'none';
             return;
         }
-        weatherConditionEl.textContent = data.condition;
-        weatherTempEl.textContent = `${data.temperature}°${tempUnit}`;
-        weatherWindEl.textContent = `${data.windSpeed} ${windUnit} ${data.windCompass}`;
-        weatherRainEl.textContent = `${data.precipitationChance}%`;
+        
+        const condition = `<div class="weather-item">${data.condition}</div>`;
+        const temp = `<div class="weather-item">${data.temperature}°${tempUnit}</div>`;
+        const wind = `<div class="weather-item">${data.windSpeed} ${windUnit} ${data.windCompass}</div>`;
+        const rain = `<div class="weather-item">${data.precipitationChance}%</div>`;
+        const separator = `<div class="weather-separator">|</div>`;
+
+        weatherLineEl.innerHTML = [condition, separator, temp, separator, wind, separator, rain].join('');
+        
         weatherEl.style.display = 'block';
     };
 
@@ -216,7 +222,12 @@ function initConfigPage() {
         code: document.getElementById("code"),
         background: document.getElementById("background"),
         colorText: document.getElementById("colorText"),
+        clockColor: document.getElementById("clockColor"),
+        clockColorText: document.getElementById("clockColorText"),
+        weatherColor: document.getElementById("weatherColor"),
+        weatherColorText: document.getElementById("weatherColorText"),
         weather: document.getElementById("weather"),
+        weatherOptions: document.getElementById("weatherOptions"),
         tempUnit: document.getElementById("tempUnit"),
         windUnit: document.getElementById("windUnit"),
         weatherLat: document.getElementById("weatherLat"),
@@ -285,6 +296,8 @@ function initConfigPage() {
         const timezone = dom.timezone.value || "Australia/Sydney";
         const code = dom.code.value || "SYD";
         const bgColor = dom.colorText.value || "transparent";
+        const clockColor = dom.clockColorText.value || "#FFFFFF";
+        const weatherColor = dom.weatherColorText.value || "#FFFFFF";
         const showWeather = dom.weather.checked;
         const weatherLat = dom.weatherLat.value;
         const weatherLon = dom.weatherLon.value;
@@ -293,6 +306,9 @@ function initConfigPage() {
 
         let url = `${window.location.origin}/?tz=${encodeURIComponent(timezone)}&code=${encodeURIComponent(code.toUpperCase())}`;
         if (bgColor !== "transparent") url += `&bg=${encodeURIComponent(bgColor)}`;
+        if (clockColor !== "#FFFFFF") url += `&clock_color=${encodeURIComponent(clockColor)}`;
+        if (weatherColor !== "#FFFFFF") url += `&weather_color=${encodeURIComponent(weatherColor)}`;
+
         if (showWeather) {
             url += `&weather=true&temp_unit=${encodeURIComponent(tempUnit)}&wind_unit=${encodeURIComponent(windUnit)}`;
             if (weatherLat && weatherLon) {
@@ -318,6 +334,14 @@ function initConfigPage() {
         dom.colorText.value = "transparent";
         dom.background.value = "#000000";
     });
+
+    dom.background.addEventListener('input', (e) => dom.colorText.value = e.target.value);
+    dom.colorText.addEventListener('input', (e) => { if (e.target.value.match(/^#[0-9a-f]{6}$/i)) dom.background.value = e.target.value; });
+    dom.clockColor.addEventListener('input', (e) => dom.clockColorText.value = e.target.value);
+    dom.clockColorText.addEventListener('input', (e) => { if (e.target.value.match(/^#[0-9a-f]{6}$/i)) dom.clockColor.value = e.target.value; });
+    dom.weatherColor.addEventListener('input', (e) => dom.weatherColorText.value = e.target.value);
+    dom.weatherColorText.addEventListener('input', (e) => { if (e.target.value.match(/^#[0-9a-f]{6}$/i)) dom.weatherColor.value = e.target.value; });
+
     dom.timezone.addEventListener("input", (e) => {
         const input = e.target.value.toLowerCase();
         if (input.length < 2) {
@@ -334,8 +358,44 @@ function initConfigPage() {
         currentSuggestionIndex = -1;
     });
 
+    dom.timezone.addEventListener("keydown", (e) => {
+        const suggestions = dom.timezoneSuggestions.querySelectorAll(".timezone-suggestion");
+        if (suggestions.length === 0) return;
+
+        if (e.key === "ArrowDown") {
+            e.preventDefault();
+            currentSuggestionIndex = (currentSuggestionIndex + 1) % suggestions.length;
+            updateSuggestionHighlight(suggestions);
+        } else if (e.key === "ArrowUp") {
+            e.preventDefault();
+            currentSuggestionIndex = (currentSuggestionIndex - 1 + suggestions.length) % suggestions.length;
+            updateSuggestionHighlight(suggestions);
+        } else if (e.key === "Enter") {
+            e.preventDefault();
+            if (currentSuggestionIndex > -1) {
+                selectTimezone(suggestions[currentSuggestionIndex].textContent);
+            }
+        } else if (e.key === "Escape") {
+            dom.timezoneSuggestions.style.display = "none";
+        }
+    });
+
+    const updateSuggestionHighlight = (suggestions) => {
+        suggestions.forEach((suggestion, index) => {
+            if (index === currentSuggestionIndex) {
+                suggestion.classList.add("highlighted");
+            } else {
+                suggestion.classList.remove("highlighted");
+            }
+        });
+    };
+
     dom.timezone.addEventListener("change", () => handleTimezoneFieldUpdate(true));
-    dom.weather.addEventListener("change", () => handleTimezoneFieldUpdate(true));
+    
+    dom.weather.addEventListener("change", () => {
+        dom.weatherOptions.classList.toggle('hidden', !dom.weather.checked);
+        handleTimezoneFieldUpdate(true)
+    });
     
     dom.timezoneSuggestions.addEventListener("click", (e) => {
         if (e.target.classList.contains("timezone-suggestion")) {
@@ -350,6 +410,11 @@ function initConfigPage() {
         const isTransparent = dom.colorText.value.trim().toLowerCase() === "transparent";
         dom.crosshatchBg.style.display = isTransparent ? "block" : "none";
         dom.previewFrame.src = url;
+    });
+
+    document.querySelector(".btn-open").addEventListener("click", () => {
+        const url = generateURL();
+        window.open(url, '_blank');
     });
 
     document.querySelector(".copy-btn").addEventListener("click", (e) => {
@@ -368,4 +433,5 @@ function initConfigPage() {
     // Init
     updateWeatherStatus(dom.timezone.value);
     handleTimezoneFieldUpdate(true);
+    dom.weatherOptions.classList.toggle('hidden', !dom.weather.checked);
 }

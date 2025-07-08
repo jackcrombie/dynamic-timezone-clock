@@ -5,7 +5,7 @@ A simple, lightweight browser-based clock that displays time for any timezone wi
 ## ✨ Features
 
 - 🌍 **Any Timezone** - Supports all IANA timezones
-- 🎨 **Customizable Background** - Transparent, solid colours, or RGBA
+- 🎨 **Customizable Colors** - Set custom colors for the background, clock text, and weather text.
 - 🏷️ **Custom Display Codes** - Show any 3-letter code (airport codes, city abbreviations, etc.)
 - ⚡ **Real-time Updates** - Updates every second automatically
 - 📱 **Responsive Design** - Scales perfectly on any screen size
@@ -63,7 +63,9 @@ https://your-domain.com/?tz=TIMEZONE&code=CODE&bg=BACKGROUND
 ### Parameters
 - **`tz`** - IANA timezone (e.g., `America/New_York`, `Australia/Sydney`)
 - **`code`** - Display code (e.g., `NYC`, `SYD`, `LON`)
-- **`bg`** - Background colour (e.g., `transparent`, `black`, `#ff0000`, `rgba(0,0,0,0.5)`, `alpha`)
+- **`bg`** - Background colour (e.g., `transparent`, `black`, `#ff0000`, `rgba(0,0,0,0.5)`)
+- **`clock_color`** - Color of the clock text (e.g., `#FFFFFF`)
+- **`weather_color`** - Color of the weather text (e.g., `#FFFFFF`)
 
 ### Defaults if parameters are not included in the request URL:
 tz=Australia/Sydney
@@ -159,25 +161,12 @@ location = /config {
 ## 🎨 Customization
 
 ### Styling the Clock
-
-The clock uses CSS custom properties for easy theming. You can modify the CSS in `index.html`:
-
-```css
-.clock {
-    font-size: 8vw;          /* Size relative to viewport */
-    font-weight: 500;        /* Font weight */
-    letter-spacing: 0.1vw;   /* Character spacing */
-    color: white;            /* Text colour */
-    font-family: 'Roboto', sans-serif;
-}
-```
+The clock's appearance can be customized via the configuration page or by passing URL parameters. For more advanced styling, you can modify the CSS files in the `/css` directory.
 
 ### Adding More Timezone Codes
-
-The configuration page includes auto-suggestions for timezone codes. To add more local mappings, edit the `localTimezoneMap` object in `config.html`:
-
+The configuration page includes auto-suggestions for timezone codes. To add more local mappings, edit the `LOCAL_TIMEZONE_CODE_MAP` object in `js/timezone-data.js`:
 ```javascript
-const localTimezoneMap = {
+const LOCAL_TIMEZONE_CODE_MAP = {
     'Europe/Stockholm': 'STO',
     'Asia/Kolkata': 'BOM',
     // Add your custom mappings here
@@ -185,16 +174,9 @@ const localTimezoneMap = {
 ```
 
 ## 🌐 Customizing the Generated URL Base
+The configuration page now generates clock URLs dynamically using the current domain and protocol. This is achieved with JavaScript in `js/app.js`. This ensures the generated URL always matches the domain the user is visiting.
 
-By default, the configuration page now generates clock URLs dynamically using the current domain and protocol. This is achieved with JavaScript in `config.html`:
-
-```js
-let url = `${window.location.origin}/?tz=${encodeURIComponent(timezone)}&code=${encodeURIComponent(code.toUpperCase())}`;
-```
-
-This ensures the generated URL always matches the domain the user is visiting, which is useful if your webhost serves the same files for multiple domains. You do not need to hardcode your domain; the config page will automatically use the correct base URL.
-
-**Reference:** See the `generateURL` function in `config.html` for where this is implemented.
+**Reference:** See the `generateURL` function in `js/app.js` for where this is implemented.
 
 ## 🛠️ Development
 
@@ -214,12 +196,18 @@ This ensures the generated URL always matches the domain the user is visiting, w
 ### File Structure
 ```
 dynamic-timezone-clock/
+├── css/
+│   ├── clock.css
+│   ├── config.css
+│   └── style.css
+├── js/
+│   ├── app.js
+│   └── timezone-data.js
+├── tests/
+│   └── ...
 ├── index.html          # Main clock display
 ├── config.html         # Configuration page
-├── updateclock.sh      # Deployment script
-├── Caddyfile.example   # Example Caddy configuration
-├── LICENSE             # MIT License
-└── README.md           # This file
+├── ... (other project files)
 ```
 
 ## 🌐 Browser Support

@@ -42,5 +42,8 @@
     "last 3 Firefox versions",
     "last 3 Safari versions",
     "last 3 Edge versions"
-  ]
+  ],
+  "devDependencies": {
+    "@playwright/test": "^1.45.1"
+  }
 }

@@ -4,7 +4,8 @@
   <meta charset="UTF-8">
   <title>Dynamic Clock</title>
   <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js"></script>
-  <script type="module" src="js/app.js"></script>
+  <script src="js/timezone-data.js"></script>
+  <script src="js/app.js"></script>
   <link rel="stylesheet" href="css/clock.css">
 </head>
 <body>
@@ -12,13 +13,7 @@
     <div class="clock" id="clock"></div>
     <div class="weather-display" id="weather">
       <div class="weather-line">
-        <div class="weather-item" id="weatherCondition">Clear</div>
-        <div class="weather-separator">|</div>
-        <div class="weather-item" id="weatherTemp">22°C</div>
-        <div class="weather-separator">|</div>
-        <div class="weather-item" id="weatherWind">5 kph N</div>
-        <div class="weather-separator">|</div>
-        <div class="weather-item" id="weatherRain">0%</div>
+        <!-- Weather data will be injected here by JavaScript -->
       </div>
     </div>
   </div>

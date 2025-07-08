@@ -4,7 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Clock Configuration - clock.efrm.net</title>
-    <script type="module" src="js/app.js"></script>
+    <script src="js/timezone-data.js"></script>
+    <script src="js/app.js"></script>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/config.css">
   </head>
@@ -103,71 +104,67 @@
           </div>
 
           <div class="form-group">
-            <label for="background">Background Colour</label>
+            <label>Display Colours</label>
             <div class="help-text">
-              Choose background colour with transparency support
+              Set colours for the clock components
             </div>
-            <div class="color-group">
-              <input
-                type="color"
-                id="background"
-                name="background"
-                value="#000000"
-                style="color-scheme: light"
-              />
-              <button
-                type="button"
-                class="transparent-btn"
-                
-                title="Set Transparent Background"
-              >
-                Transparent
-              </button>
-              <input
-                type="text"
-                class="color-preview"
-                id="colorText"
-                value="transparent"
-                placeholder="transparent, black, #000000, rgba(0,0,0,0.5)"
-              />
+            <div class="form-row">
+              <div class="form-group">
+                <label for="background">Background</label>
+                <div class="color-group">
+                  <input type="color" id="background" name="background" value="#000000" style="color-scheme: light" />
+                  <button type="button" class="transparent-btn" title="Set Transparent Background">Transparent</button>
+                  <input type="text" class="color-preview" id="colorText" value="transparent" placeholder="e.g., transparent, black, #000000, rgba(0,0,0,0.5)" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="clockColor">Clock Text</label>
+                <div class="color-group">
+                  <input type="color" id="clockColor" name="clockColor" value="#FFFFFF" style="color-scheme: light" />
+                  <input type="text" class="color-preview" id="clockColorText" value="#FFFFFF" placeholder="e.g., #FFFFFF" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="weatherColor">Weather Text</label>
+                <div class="color-group">
+                  <input type="color" id="weatherColor" name="weatherColor" value="#FFFFFF" style="color-scheme: light" />
+                  <input type="text" class="color-preview" id="weatherColorText" value="#FFFFFF" placeholder="e.g., #FFFFFF" />
+                </div>
+              </div>
             </div>
           </div>
 
           <div class="form-group">
-            <label for="weather">Weather Display</label>
-            <div class="help-text">
-              Show current weather conditions underneath the clock
-            </div>
             <div class="checkbox-group">
-              <input
-                type="checkbox"
-                id="weather"
-                name="weather"
-                value="true"
-              />
-              <label for="weather">Display weather information</label>
+              <input type="checkbox" id="weather" name="weather" value="true" />
+              <label for="weather">Display Weather Information</label>
             </div>
-            <div class="form-row" style="margin-top:10px;">
-              <div class="form-group" style="flex:1;min-width:120px;">
-                <label for="tempUnit">Temperature Unit</label>
-                <select id="tempUnit" name="tempUnit">
-                  <option value="C" selected>°C (Celsius)</option>
-                  <option value="F">°F (Fahrenheit)</option>
-                </select>
+            <div id="weatherOptions" class="hidden">
+              <div class="help-text">
+                Show current weather conditions underneath the clock
               </div>
-              <div class="form-group" style="flex:1;min-width:120px;">
-                <label for="windUnit">Wind Speed Unit</label>
-                <select id="windUnit" name="windUnit">
-                  <option value="kph" selected>KPH (km/h)</option>
-                  <option value="mph">MPH (miles/h)</option>
-                  <option value="ms">m/s (meters/sec)</option>
-                </select>
+              <div class="form-row" style="margin-top:10px;">
+                <div class="form-group" style="flex:1;min-width:120px;">
+                  <label for="tempUnit">Temperature Unit</label>
+                  <select id="tempUnit" name="tempUnit">
+                    <option value="C" selected>°C (Celsius)</option>
+                    <option value="F">°F (Fahrenheit)</option>
+                  </select>
+                </div>
+                <div class="form-group" style="flex:1;min-width:120px;">
+                  <label for="windUnit">Wind Speed Unit</label>
+                  <select id="windUnit" name="windUnit">
+                    <option value="kph" selected>KPH (km/h)</option>
+                    <option value="mph">MPH (miles/h)</option>
+                    <option value="ms">m/s (meters/sec)</option>
+                  </select>
+                </div>
               </div>
-            </div>
-            <div class="weather-note">
-              <strong>Weather Format:</strong> Conditions | Temperature | Wind | Rain %<br>
-              <strong>Units:</strong> Temperature (<span id="tempUnitLabel">°C</span>), Wind (<span id="windUnitLabel">KPH</span>)<br>
-              <strong>Data Source:</strong> Free Open-Meteo API, updates every 5 minutes
+              <div class="weather-note">
+                <strong>Weather Format:</strong> Conditions | Temperature | Wind | Rain %<br>
+                <strong>Units:</strong> Temperature (<span id="tempUnitLabel">°C</span>), Wind (<span id="windUnitLabel">KPH</span>)<br>
+                <strong>Data Source:</strong> Free Open-Meteo API, updates every 5 minutes
+              </div>
             </div>
           </div>
 
@@ -223,6 +220,9 @@
             </button>
             <button type="button" class="btn-preview">
               Preview Clock
+            </button>
+            <button type="button" class="btn-open">
+              Open in New Window
             </button>
           </div>
         </form>

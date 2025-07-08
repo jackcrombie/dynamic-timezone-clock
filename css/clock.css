@@ -51,7 +51,7 @@ html, body {
 }
 
 .weather-separator {
-  color: rgba(255, 255, 255, 0.6);
+  opacity: 0.8;
   font-weight: 300;
   margin: 0 0.5vw;
 }
