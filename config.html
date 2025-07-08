@@ -108,30 +108,42 @@
             <div class="help-text">
               Set colours for the clock components
             </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label for="background">Background</label>
-                <div class="color-group">
-                  <input type="color" id="background" name="background" value="#000000" style="color-scheme: light" />
-                  <button type="button" class="transparent-btn" title="Set Transparent Background">Transparent</button>
-                  <input type="text" class="color-preview" id="colorText" value="transparent" placeholder="e.g., transparent, black, #000000, rgba(0,0,0,0.5)" />
-                </div>
-              </div>
-              <div class="form-group">
-                <label for="clockColor">Clock Text</label>
-                <div class="color-group">
-                  <input type="color" id="clockColor" name="clockColor" value="#FFFFFF" style="color-scheme: light" />
-                  <input type="text" class="color-preview" id="clockColorText" value="#FFFFFF" placeholder="e.g., #FFFFFF" />
-                </div>
-              </div>
-              <div class="form-group">
-                <label for="weatherColor">Weather Text</label>
-                <div class="color-group">
-                  <input type="color" id="weatherColor" name="weatherColor" value="#FFFFFF" style="color-scheme: light" />
-                  <input type="text" class="color-preview" id="weatherColorText" value="#FFFFFF" placeholder="e.g., #FFFFFF" />
-                </div>
-              </div>
-            </div>
+            <table class="color-table">
+              <tr>
+                <td><label for="background">Background</label></td>
+                <td>
+                  <div class="color-group">
+                    <div class="color-swatch-wrapper">
+                      <input type="color" id="background" name="background" value="#000000" style="color-scheme: light" />
+                    </div>
+                    <button type="button" class="transparent-btn" title="Set Transparent Background">Transparent</button>
+                    <input type="text" class="color-preview" id="colorText" value="transparent" placeholder="e.g., transparent, black, #000000, rgba(0,0,0,0.5)" />
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td><label for="clockColor">Clock Text</label></td>
+                <td>
+                  <div class="color-group">
+                    <div class="color-swatch-wrapper">
+                      <input type="color" id="clockColor" name="clockColor" value="#FFFFFF" style="color-scheme: light" />
+                    </div>
+                    <input type="text" class="color-preview" id="clockColorText" value="#FFFFFF" placeholder="e.g., #FFFFFF" />
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td><label for="weatherColor">Weather Text</label></td>
+                <td>
+                  <div class="color-group">
+                    <div class="color-swatch-wrapper">
+                      <input type="color" id="weatherColor" name="weatherColor" value="#FFFFFF" style="color-scheme: light" />
+                    </div>
+                    <input type="text" class="color-preview" id="weatherColorText" value="#FFFFFF" placeholder="e.g., #FFFFFF" />
+                  </div>
+                </td>
+              </tr>
+            </table>
           </div>
 
           <div class="form-group">

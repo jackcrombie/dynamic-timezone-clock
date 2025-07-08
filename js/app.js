@@ -222,10 +222,13 @@ function initConfigPage() {
         code: document.getElementById("code"),
         background: document.getElementById("background"),
         colorText: document.getElementById("colorText"),
+        backgroundSwatch: document.querySelector("#background").parentElement,
         clockColor: document.getElementById("clockColor"),
         clockColorText: document.getElementById("clockColorText"),
+        clockColorSwatch: document.querySelector("#clockColor").parentElement,
         weatherColor: document.getElementById("weatherColor"),
         weatherColorText: document.getElementById("weatherColorText"),
+        weatherColorSwatch: document.querySelector("#weatherColor").parentElement,
         weather: document.getElementById("weather"),
         weatherOptions: document.getElementById("weatherOptions"),
         tempUnit: document.getElementById("tempUnit"),
@@ -327,20 +330,43 @@ function initConfigPage() {
         toggle.classList.toggle("rotated");
     };
 
-    // Event Listeners
+    // --- Event Listeners ---
+
+    // Helper to check if a string is a valid color
+    const isValidColor = (str) => {
+        const s = new Option().style;
+        s.color = str;
+        return s.color !== '';
+    };
+    
     document.querySelector(".instructions-header").addEventListener("click", toggleInstructions);
 
     document.querySelector(".transparent-btn").addEventListener("click", () => {
         dom.colorText.value = "transparent";
         dom.background.value = "#000000";
+        dom.backgroundSwatch.classList.add("crosshatch");
     });
 
-    dom.background.addEventListener('input', (e) => dom.colorText.value = e.target.value);
-    dom.colorText.addEventListener('input', (e) => { if (e.target.value.match(/^#[0-9a-f]{6}$/i)) dom.background.value = e.target.value; });
+    dom.background.addEventListener('input', (e) => {
+        dom.colorText.value = e.target.value;
+        dom.backgroundSwatch.classList.remove("crosshatch");
+    });
+    dom.colorText.addEventListener('input', (e) => { 
+        if (isValidColor(e.target.value)) {
+            dom.background.value = e.target.value;
+            dom.backgroundSwatch.classList.remove("crosshatch");
+        }
+    });
+
     dom.clockColor.addEventListener('input', (e) => dom.clockColorText.value = e.target.value);
-    dom.clockColorText.addEventListener('input', (e) => { if (e.target.value.match(/^#[0-9a-f]{6}$/i)) dom.clockColor.value = e.target.value; });
+    dom.clockColorText.addEventListener('input', (e) => { 
+        if (isValidColor(e.target.value)) dom.clockColor.value = e.target.value; 
+    });
+    
     dom.weatherColor.addEventListener('input', (e) => dom.weatherColorText.value = e.target.value);
-    dom.weatherColorText.addEventListener('input', (e) => { if (e.target.value.match(/^#[0-9a-f]{6}$/i)) dom.weatherColor.value = e.target.value; });
+    dom.weatherColorText.addEventListener('input', (e) => { 
+        if (isValidColor(e.target.value)) dom.weatherColor.value = e.target.value; 
+    });
 
     dom.timezone.addEventListener("input", (e) => {
         const input = e.target.value.toLowerCase();
