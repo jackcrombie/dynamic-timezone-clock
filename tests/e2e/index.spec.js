@@ -1,47 +1,45 @@
-// Playwright + Jest test for index.html
 const { test, expect } = require('@playwright/test');
 
 function urlWithUnits(temp, wind) {
-  return (
-    'file://' +
-    process.cwd() +
-    `/index.html?timezone=Pacific/Auckland&lat=-36.85&lon=174.76&temp_unit=${temp}&wind_unit=${wind}`
-  );
+  return `http://localhost:8000/index.html?tz=Pacific/Auckland&weather=true&temp_unit=${temp}&wind_unit=${wind}`;
 }
 
 test.describe('Index.html Widget', () => {
-  test('should parse and display temperature and wind in selected units', async ({ page }) => {
-    await page.goto(urlWithUnits('F', 'MPH'));
-    // Wait for weather to load
-    await page.waitForSelector('.weather-temp');
-    const tempText = await page.locator('.weather-temp').textContent();
-    const windText = await page.locator('.weather-wind').textContent();
-    expect(tempText).toMatch(/°F/);
-    expect(windText).toMatch(/MPH/);
+  let server;
+
+  test.beforeAll(async () => {
+    const { exec } = require('child_process');
+    server = exec('python3 -m http.server 8000');
+    await new Promise(resolve => setTimeout(resolve, 1000));
   });
 
-  test('should default to °C and KPH if units missing', async ({ page }) => {
-    await page.goto('file://' + process.cwd() + '/index.html?timezone=Pacific/Auckland&lat=-36.85&lon=174.76');
-    await page.waitForSelector('.weather-temp');
-    const tempText = await page.locator('.weather-temp').textContent();
-    const windText = await page.locator('.weather-wind').textContent();
-    expect(tempText).toMatch(/°C/);
-    expect(windText).toMatch(/KPH/);
+  test.afterAll(() => {
+    server.kill();
+  });
+
+  test('should parse and display temperature and wind in selected units', async ({ page }) => {
+    await page.goto(urlWithUnits('F', 'mph'));
+    await page.waitForSelector('#weatherTemp');
+    await expect(page.locator('#weatherTemp')).toContainText('°F');
+    await expect(page.locator('#weatherWind')).toContainText('mph');
+  });
+
+  test('should default to °C and kph if units missing', async ({ page }) => {
+    await page.goto('http://localhost:8000/index.html?tz=Pacific/Auckland&weather=true');
+    await page.waitForSelector('#weatherTemp');
+    await expect(page.locator('#weatherTemp')).toContainText('°C');
+    await expect(page.locator('#weatherWind')).toContainText('kph');
   });
 
   test('should update weather display when units in URL change', async ({ page }) => {
-    await page.goto(urlWithUnits('C', 'm/s'));
-    await page.waitForSelector('.weather-temp');
-    let tempText = await page.locator('.weather-temp').textContent();
-    let windText = await page.locator('.weather-wind').textContent();
-    expect(tempText).toMatch(/°C/);
-    expect(windText).toMatch(/m\/s/);
-    // Change units
-    await page.goto(urlWithUnits('F', 'MPH'));
-    await page.waitForSelector('.weather-temp');
-    tempText = await page.locator('.weather-temp').textContent();
-    windText = await page.locator('.weather-wind').textContent();
-    expect(tempText).toMatch(/°F/);
-    expect(windText).toMatch(/MPH/);
+    await page.goto(urlWithUnits('C', 'ms'));
+    await page.waitForSelector('#weatherTemp');
+    await expect(page.locator('#weatherTemp')).toContainText('°C');
+    await expect(page.locator('#weatherWind')).toContainText('ms');
+
+    await page.goto(urlWithUnits('F', 'mph'));
+    await page.waitForSelector('#weatherTemp');
+    await expect(page.locator('#weatherTemp')).toContainText('°F');
+    await expect(page.locator('#weatherWind')).toContainText('mph');
   });
 });

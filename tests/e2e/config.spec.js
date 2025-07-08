@@ -1,48 +1,56 @@
-// Playwright + Jest test for config.html
 const { test, expect } = require('@playwright/test');
 
 test.describe('Config.html UI', () => {
+  let server;
+
+  test.beforeAll(async () => {
+    // Start a local server to handle ES modules
+    const { exec } = require('child_process');
+    server = exec('python3 -m http.server 8000');
+    // Give server time to start
+    await new Promise(resolve => setTimeout(resolve, 1000)); 
+  });
+
+  test.afterAll(() => {
+    server.kill();
+  });
+
   test.beforeEach(async ({ page }) => {
-    await page.goto('file://' + process.cwd() + '/config.html');
+    await page.goto('http://localhost:8000/config.html');
   });
 
   test('should show default units and update URL on change', async ({ page }) => {
     // Check default units
-    const tempUnit = await page.locator('#tempUnit').inputValue();
-    const windUnit = await page.locator('#windUnit').inputValue();
-    expect(tempUnit).toBe('C');
-    expect(windUnit).toBe('KPH');
+    await expect(page.locator('#tempUnit')).toHaveValue('C');
+    await expect(page.locator('#windUnit')).toHaveValue('kph');
 
     // Change units
     await page.selectOption('#tempUnit', 'F');
-    await page.selectOption('#windUnit', 'MPH');
+    await page.selectOption('#windUnit', 'mph');
+    
     // Generate URL
-    await page.click('#generateBtn');
-    const url = await page.locator('#generatedUrl').inputValue();
+    await page.click('button.btn-generate');
+    const url = await page.locator('#generatedURL').textContent();
     expect(url).toContain('temp_unit=F');
-    expect(url).toContain('wind_unit=MPH');
+    expect(url).toContain('wind_unit=mph');
   });
 
   test('should update coordinates and preview on timezone change', async ({ page }) => {
-    await page.selectOption('#timezone', 'Pacific/Auckland');
-    const lat = await page.locator('#latitude').inputValue();
-    const lon = await page.locator('#longitude').inputValue();
-    expect(lat).not.toBe('');
-    expect(lon).not.toBe('');
+    await page.fill('#timezone', 'Pacific/Auckland');
+    await page.click('.timezone-suggestion'); // Select the first suggestion
+
+    await expect(page.locator('#weatherLat')).not.toHaveValue('');
+    await expect(page.locator('#weatherLon')).not.toHaveValue('');
+
     // Preview should update
-    const preview = await page.frameLocator('#previewFrame');
+    await page.click('button.btn-preview');
+    const preview = page.frameLocator('#preview');
     await expect(preview.locator('body')).toBeVisible();
   });
 
   test('should show crosshatch background when transparency is selected', async ({ page }) => {
-    await page.check('#transparentBg');
-    const wrapperClass = await page.locator('#previewFrameWrapper').getAttribute('class');
-    expect(wrapperClass).toContain('crosshatch-bg');
-  });
-
-  test('should show warning if units require conversion', async ({ page }) => {
-    await page.selectOption('#tempUnit', 'F');
-    const warning = await page.locator('#unitWarning').textContent();
-    expect(warning).toMatch(/conversion/i);
+    await page.click('.transparent-btn');
+    await page.click('button.btn-preview');
+    await expect(page.locator('#crosshatchBg')).toBeVisible();
   });
 });

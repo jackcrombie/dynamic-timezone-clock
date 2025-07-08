@@ -1,0 +1,93 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
+html, body {
+  margin: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Roboto', sans-serif;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+  color: white;
+  background: transparent;
+}
+
+.clock-container {
+  text-align: center;
+}
+
+.clock {
+  font-size: 8vw;
+  font-weight: 500;
+  letter-spacing: 0.1vw;
+  margin-bottom: 0.5vw;
+  font-family: 'Roboto', sans-serif;
+}
+
+.weather-display {
+  font-size: 2.5vw;
+  font-weight: 400;
+  opacity: 0.9;
+  display: none; /* Hidden by default */
+  font-family: 'Roboto', sans-serif;
+  margin-top: 1vw;
+}
+
+.weather-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  white-space: nowrap;
+  min-width: 60vw;
+}
+
+.weather-item {
+  flex: 1;
+  text-align: center;
+  padding: 0 1vw;
+}
+
+.weather-separator {
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 300;
+  margin: 0 0.5vw;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .weather-display {
+    font-size: 3.5vw;
+  }
+  .weather-line {
+    min-width: 90vw;
+  }
+  .weather-item {
+    padding: 0 0.5vw;
+  }
+}
+
+@media (max-width: 480px) {
+  .weather-display {
+    font-size: 4vw;
+  }
+  .weather-line {
+    min-width: 95vw;
+  }
+  .weather-item {
+    padding: 0 0.3vw;
+    font-size: 3.5vw;
+  }
+}
+
+/* High contrast mode for better visibility */
+@media (prefers-contrast: high) {
+  .weather-display {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  }
+  .clock {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  }
+}
