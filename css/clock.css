@@ -41,7 +41,6 @@ html, body {
   justify-content: space-between;
   align-items: center;
   white-space: nowrap;
-  min-width: 60vw;
 }
 
 .weather-item {

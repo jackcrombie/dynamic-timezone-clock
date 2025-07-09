@@ -17,7 +17,7 @@ A simple, lightweight browser-based clock that displays time for any timezone wi
 
 - ☁️ **Weather Display** - Show current weather (temperature, wind, rain chance, condition) for any supported timezone or custom coordinates
 - 🌡️ **Selectable Units** - Choose temperature (°C/°F) and wind speed (KPH/MPH/m/s) units; units are respected in both API fetch and display
-- 🗺️ **Instant Coordinate Lookup** - AU/NZ and major world cities have instant fallback for weather coordinates
+- 🗺️ **Instant Coordinate Lookup** - AU/NZ and major world cities have instant fallback for weather coordinates. You can also search for any location to automatically populate its coordinates.
 - 🧭 **Custom Weather Location** - Override weather location with your own latitude/longitude
 - 🧩 **Live Preview with Transparency Checkerboard** - Preview window shows a crosshatch pattern when background is transparent, so you can see transparency in action
 - 📝 **All Weather Options via URL** - Use `weather=true`, `temp_unit`, `wind_unit`, `weather_lat`, and `weather_lon` in the URL for full control

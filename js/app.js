@@ -166,6 +166,12 @@ function initClockPage() {
     const updateClock = () => {
         const now = DateTime.now().setZone(timezone);
         clockEl.textContent = `${code.toUpperCase()}  ${now.toFormat("HH:mm:ss")}`;
+        sizeWeatherDisplay();
+    };
+
+    const sizeWeatherDisplay = () => {
+        const clockWidth = clockEl.offsetWidth;
+        weatherEl.style.width = `${clockWidth}px`;
     };
 
     const displayWeather = (data) => {
@@ -210,6 +216,7 @@ function initClockPage() {
     });
 
     window.addEventListener('error', (e) => console.error('Clock error:', e.error));
+    window.addEventListener('resize', sizeWeatherDisplay);
 }
 
 
@@ -235,6 +242,7 @@ function initConfigPage() {
         windUnit: document.getElementById("windUnit"),
         weatherLat: document.getElementById("weatherLat"),
         weatherLon: document.getElementById("weatherLon"),
+        locationSearch: document.getElementById("locationSearch"),
         generatedURL: document.getElementById("generatedURL"),
         output: document.getElementById("output"),
         previewFrame: document.getElementById("preview"),
@@ -257,6 +265,28 @@ function initConfigPage() {
         } else {
             indicator.className = "status-indicator status-unavailable";
             dom.weatherStatus.innerHTML = '<span class="status-indicator status-unavailable"></span>No built-in coordinates';
+        }
+    };
+
+    const handleLocationSearch = async () => {
+        const query = dom.locationSearch.value;
+        if (query.length < 3) return;
+
+        try {
+            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`;
+            const resp = await fetch(url, { headers: { 'Accept-Language': 'en' }, method: 'GET', referrerPolicy: 'no-referrer-when-downgrade' });
+            if (!resp.ok) throw new Error('Nominatim lookup failed');
+            const data = await resp.json();
+            if (data && data.length > 0) {
+                const { lat, lon } = data[0];
+                const latNum = parseFloat(lat);
+                const lonNum = parseFloat(lon);
+                dom.weatherLat.value = latNum.toFixed(4);
+                dom.weatherLon.value = lonNum.toFixed(4);
+                updateOsmMapEmbed(latNum, lonNum);
+            }
+        } catch (e) {
+            console.error("Location search error:", e);
         }
     };
 
@@ -366,6 +396,13 @@ function initConfigPage() {
     dom.weatherColor.addEventListener('input', (e) => dom.weatherColorText.value = e.target.value);
     dom.weatherColorText.addEventListener('input', (e) => { 
         if (isValidColor(e.target.value)) dom.weatherColor.value = e.target.value; 
+    });
+
+    dom.locationSearch.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            handleLocationSearch();
+        }
     });
 
     dom.timezone.addEventListener("input", (e) => {
