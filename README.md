@@ -13,6 +13,36 @@ A simple, lightweight browser-based clock that displays time for any timezone wi
 - 🔗 **URL Parameters** - Simple query string configuration
 - 🎯 **Zero Dependencies** - Just HTML, CSS, and JavaScript (uses Luxon.js from CDN)
 
+## ⏱️ Timer
+
+A versatile countdown timer with two modes, an optional scheduled start, and customizable display options.
+
+### Timer Configuration
+Create your custom timer by visiting the configuration page:
+```
+https://clock.efrm.net/timer-config.html
+```
+
+### Timer Features
+- **Two Countdown Modes**:
+  - **Duration**: Counts down for a specific length of time (e.g., 10 minutes).
+  - **Time of Day**: Counts down to a specific time (e.g., 5:00 PM).
+- **Scheduled Start**: Optionally set a date, time, and timezone for the timer to begin. If the start time is in the future, a "Starting in..." message will be displayed.
+- **Flexible Duration Formats**: Specify durations like `10m`, `1h30m`, or `01:30:00`.
+- **Customizable Display**: Change the title and colors to match your needs.
+- **Live Preview**: See your timer in action before you use it.
+
+### Timer URL Parameters
+- **`mode`**: `duration` or `timeOfDay`.
+- **`title`**: The text to display above the timer.
+- **`dur`**: The duration for the timer (e.g., `10m`, `1h30m`). Used when `mode=duration`.
+- **`time`**: The end time for the countdown (e.g., `17:00`). Used when `mode=timeOfDay`.
+- **`startDate`**: The date for a scheduled start (e.g., `2025-12-31`).
+- **`startTime`**: The time for a scheduled start (e.g., `09:00`).
+- **`timezone`**: The IANA timezone for the scheduled start (e.g., `America/New_York`).
+- **`showTitle`**: `true` to include the title in the "Starting in..." message.
+- **`bg`**, **`timer_color`**: Color options for the display.
+
 ---
 
 - ☁️ **Weather Display** - Show current weather (temperature, wind, rain chance, condition) for any supported timezone or custom coordinates

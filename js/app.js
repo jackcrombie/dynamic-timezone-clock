@@ -494,6 +494,8 @@ function initConfigPage() {
     });
 
     // Init
+    const detectedTimezone = luxon.DateTime.local().zone.name || 'Australia/Sydney';
+    dom.timezone.value = detectedTimezone;
     updateWeatherStatus(dom.timezone.value);
     handleTimezoneFieldUpdate(true);
     dom.weatherOptions.classList.toggle('hidden', !dom.weather.checked);

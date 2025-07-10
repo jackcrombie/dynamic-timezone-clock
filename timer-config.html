@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Timer Configuration - clock.efrm.net</title>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.4/build/global/luxon.min.js"></script>
+    <script src="js/timer-app.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/config.css">
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <div class="logo">
+          <img
+            src="https://images.squarespace-cdn.com/content/v1/5f472f112d90b306a6451b02/1598501694191-DO6FMR9J5ORUIL6KZ5PE/endframe_logo_Large_white.png?format=1500w"
+            alt="Endframe"
+          />
+        </div>
+        <h1>⏳ Timer Generator</h1>
+        <nav>
+          <a href="/config.html">Clock Config</a>
+          <a href="/timer-config.html" class="active">Timer Config</a>
+        </nav>
+      </div>
+
+      <div class="form-container">
+        <div class="instructions">
+          <div class="instructions-header">
+            <h3 style="margin: 0; color: #2c3e50; font-size: 1.3em">
+              Instructions
+            </h3>
+            <span class="instructions-toggle">▼</span>
+          </div>
+          <div class="instructions-content" id="instructionsContent">
+            <ul>
+              <li>
+                <strong>Timer Mode:</strong> Choose to count down by a set duration (e.g., 10 minutes) or to a specific time of day (e.g., 5:00 PM).
+              </li>
+              <li>
+                <strong>Duration:</strong> If using duration mode, set the length of the countdown (e.g., "1h", "30m", "1h30m").
+              </li>
+              <li>
+                <strong>End Time:</strong> If counting down to a time, set the 24-hour time it should end. The timer will aim for the next available instance of this time.
+              </li>
+              <li>
+                <strong>Display Title:</strong> A title to show above the timer.
+              </li>
+              <li>
+                <strong>Scheduled Start (Optional):</strong> Set a future date and time for the timer to begin. Before it starts, a "Starting in..." message will be shown.
+              </li>
+              <li>
+                <strong>Display Colours:</strong> Customize the background and text colours. The background can be set to transparent.
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <form id="timerForm">
+          <div class="form-group">
+            <label>Scheduled Start (Optional)</label>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="startDate">Start Date</label>
+                <input type="date" id="startDate" name="startDate">
+              </div>
+              <div class="form-group">
+                <label for="startTime">Start Time</label>
+                <input type="time" id="startTime" name="startTime">
+              </div>
+              <div class="form-group">
+                <label for="startTimezone">Timezone</label>
+                <select id="startTimezone" name="startTimezone"></select>
+              </div>
+            </div>
+            <div class="form-group">
+              <input type="checkbox" id="showTitleInPreTimer" name="showTitleInPreTimer">
+              <label for="showTitleInPreTimer">Show title in "Starting in..." message</label>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="timerMode">Timer Mode</label>
+              <select id="timerMode" name="timerMode">
+                <option value="duration" selected>Countdown by Duration</option>
+                <option value="timeOfDay">Countdown to Time of Day</option>
+              </select>
+            </div>
+            <div id="durationConfig" class="form-group">
+              <label for="duration">Duration</label>
+              <input type="text" id="duration" name="duration" value="5m" placeholder="e.g., 5m, 1h30m">
+            </div>
+            <div id="timeOfDayConfig" class="form-group" style="display: none;">
+              <label for="endTime">End Time (24h)</label>
+              <input type="time" id="endTime" name="endTime" value="23:59">
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="title">Display Title</label>
+            <input
+              type="text"
+              id="title"
+              name="title"
+              value="Countdown"
+              maxlength="50"
+              placeholder="e.g. Time Until Launch"
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Display Colours</label>
+            <table class="color-table">
+              <tr>
+                <td><label for="background">Background</label></td>
+                <td>
+                  <div class="color-group">
+                    <div class="color-swatch-wrapper">
+                      <input type="color" id="background" name="background" value="#000000" style="color-scheme: light" />
+                    </div>
+                    <button type="button" class="transparent-btn" title="Set Transparent Background">Transparent</button>
+                    <input type="text" class="color-preview" id="colorText" value="transparent" placeholder="e.g., transparent, black, #000000" />
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td><label for="timerColor">Timer Text</label></td>
+                <td>
+                  <div class="color-group">
+                    <div class="color-swatch-wrapper">
+                      <input type="color" id="timerColor" name="timerColor" value="#FFFFFF" style="color-scheme: light" />
+                    </div>
+                    <input type="text" class="color-preview" id="timerColorText" value="#FFFFFF" placeholder="e.g., #FFFFFF" />
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </div>
+
+          <div class="buttons">
+            <button type="button" class="btn-generate">
+              Generate URL
+            </button>
+            <button type="button" class="btn-preview">
+              Preview Timer
+            </button>
+            <button type="button" class="btn-open">
+              Open in New Window
+            </button>
+          </div>
+        </form>
+
+        <div id="output" class="output hidden">
+          <h4>Your Timer URL:</h4>
+          <div class="url-output">
+            <span id="generatedURL"></span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <div id="previewFrameWrapper" class="preview-frame-wrapper hidden">
+            <div class="crosshatch-bg" id="crosshatchBg"></div>
+            <iframe id="preview" class="preview-frame"></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+    <footer style="text-align:center; margin: 24px 0 12px 0; font-size: 1em; color: #888; font-family: 'Roboto', sans-serif;">
+      <a href="https://github.com/jackcrombie/dynamic-timezone-clock" target="_blank" rel="noopener noreferrer" style="color: #2c3e50; text-decoration: none;">
+        View on GitHub
+      </a>
+    </footer>
+  </body>
+</html>
