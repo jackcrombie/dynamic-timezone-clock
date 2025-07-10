@@ -22,6 +22,7 @@ function initTimerPage() {
     const startTimeStr = urlParams.get('startTime');
     const timezone = urlParams.get('timezone') || 'UTC';
     const showTitleInPreTimer = urlParams.get('showTitle') === 'true';
+    const hideSeconds = urlParams.get('hide_seconds') === 'true';
     const bgColor = urlParams.get('bg') || 'transparent';
     const timerColor = urlParams.get('timer_color') || '#FFFFFF';
 
@@ -31,6 +32,7 @@ function initTimerPage() {
     dom.title.textContent = titleText;
 
     let targetTime;
+    let initialDurationInHours = 0;
 
     const parseDuration = (dur) => {
         let totalSeconds = 0;
@@ -48,19 +50,38 @@ function initTimerPage() {
         if (startDateStr && startTimeStr) {
             const startDateTime = luxon.DateTime.fromISO(`${startDateStr}T${startTimeStr}`, { zone: timezone });
             if (now < startDateTime) {
+                initialDurationInHours = startDateTime.diff(now, 'hours').hours;
                 return { preTimer: true, start: startDateTime };
             }
         }
 
         if (mode === 'duration') {
-            return { preTimer: false, end: now.plus(parseDuration(duration)) };
+            const durationObj = parseDuration(duration);
+            initialDurationInHours = durationObj.as('hours');
+            return { preTimer: false, end: now.plus(durationObj) };
         } else { // time of day
             let end = luxon.DateTime.fromISO(endTimeStr, { zone: timezone });
             if (now > end) {
                 end = end.plus({ days: 1 });
             }
+            initialDurationInHours = end.diff(now, 'hours').hours;
             return { preTimer: false, end: end };
         }
+    };
+
+    const formatTime = (diff, durationInHours) => {
+        let parts = [];
+        if (durationInHours > 36) {
+            parts.push(diff.days.toString().padStart(2, '0'));
+            parts.push(diff.hours.toString().padStart(2, '0'));
+        } else {
+            parts.push(Math.floor(diff.as('hours')).toString().padStart(2, '0'));
+        }
+        parts.push(diff.minutes.toString().padStart(2, '0'));
+        if (!hideSeconds) {
+            parts.push(Math.floor(diff.seconds).toString().padStart(2, '0'));
+        }
+        return parts.join(':');
     };
 
     const updateTimer = () => {
@@ -73,16 +94,16 @@ function initTimerPage() {
             }
             const titlePrefix = showTitleInPreTimer ? `${titleText} starting in` : 'Starting in';
             dom.title.textContent = titlePrefix;
-            dom.timer.textContent = `${Math.floor(diff.as('hours')).toString().padStart(2, '0')}:${diff.minutes.toString().padStart(2, '0')}:${Math.floor(diff.seconds).toString().padStart(2, '0')}`;
+            dom.timer.textContent = formatTime(diff, initialDurationInHours);
         } else {
-            const diff = targetTime.end.diff(now, ['hours', 'minutes', 'seconds', 'milliseconds']);
+            const diff = targetTime.end.diff(now, ['days', 'hours', 'minutes', 'seconds', 'milliseconds']);
             if (diff.as('milliseconds') <= 0) {
-                dom.timer.textContent = "00:00:00";
+                dom.timer.textContent = hideSeconds ? "00:00" : "00:00:00";
                 dom.title.textContent = `${titleText} Complete`;
                 return;
             }
             dom.title.textContent = titleText;
-            dom.timer.textContent = `${Math.floor(diff.as('hours')).toString().padStart(2, '0')}:${diff.minutes.toString().padStart(2, '0')}:${Math.floor(diff.seconds % 60).toString().padStart(2, '0')}`;
+            dom.timer.textContent = formatTime(diff, initialDurationInHours);
         }
     };
     
@@ -103,6 +124,7 @@ function initTimerConfigPage() {
         startTime: document.getElementById("startTime"),
         startTimezone: document.getElementById("startTimezone"),
         showTitleInPreTimer: document.getElementById("showTitleInPreTimer"),
+        hideSeconds: document.getElementById("hideSeconds"),
         title: document.getElementById("title"),
         background: document.getElementById("background"),
         colorText: document.getElementById("colorText"),
@@ -153,12 +175,25 @@ function initTimerConfigPage() {
             url += `&time=${dom.endTime.value || "23:59"}`;
         }
 
-        if (dom.startDate.value && dom.startTime.value) {
-            url += `&startDate=${dom.startDate.value}&startTime=${dom.startTime.value}`;
+        let startDate = dom.startDate.value;
+        const startTime = dom.startTime.value;
+        const hideSeconds = dom.hideSeconds.checked;
+
+        // If a time is provided but a date is not, default to today's date.
+        if (startTime && !startDate) {
+            startDate = luxon.DateTime.local().toISODate();
+        }
+
+        if (startDate && startTime) {
+            url += `&startDate=${startDate}&startTime=${startTime}`;
             url += `&timezone=${encodeURIComponent(dom.startTimezone.value)}`;
             if (dom.showTitleInPreTimer.checked) {
                 url += `&showTitle=true`;
             }
+        }
+
+        if (hideSeconds) {
+            url += `&hide_seconds=true`;
         }
 
         if (bgColor !== "transparent") url += `&bg=${encodeURIComponent(bgColor)}`;

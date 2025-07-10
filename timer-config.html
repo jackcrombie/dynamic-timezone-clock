@@ -48,7 +48,10 @@
                 <strong>Display Title:</strong> A title to show above the timer.
               </li>
               <li>
-                <strong>Scheduled Start (Optional):</strong> Set a future date and time for the timer to begin. Before it starts, a "Starting in..." message will be shown.
+                <strong>Scheduled Start (Optional):</strong> Set a future date and time for the timer to begin. If you select a time without a date, today's date will be used.
+              </li>
+              <li>
+                <strong>Display Format:</strong> For timers over 36 hours, the display will include days (DD:HH:MM:SS). You can also choose to hide the seconds from the display.
               </li>
               <li>
                 <strong>Display Colours:</strong> Customize the background and text colours. The background can be set to transparent.
@@ -108,6 +111,16 @@
               maxlength="50"
               placeholder="e.g. Time Until Launch"
             />
+          </div>
+
+          <div class="form-group">
+            <div class="checkbox-group">
+              <input type="checkbox" id="hideSeconds" name="hideSeconds" />
+              <label for="hideSeconds">Hide seconds from display</label>
+            </div>
+            <div class="help-text">
+              The timer will still be accurate to the second, but the display will not show them.
+            </div>
           </div>
 
           <div class="form-group">

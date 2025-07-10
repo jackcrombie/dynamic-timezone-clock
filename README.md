@@ -27,8 +27,8 @@ https://clock.efrm.net/timer-config.html
 - **Two Countdown Modes**:
   - **Duration**: Counts down for a specific length of time (e.g., 10 minutes).
   - **Time of Day**: Counts down to a specific time (e.g., 5:00 PM).
-- **Scheduled Start**: Optionally set a date, time, and timezone for the timer to begin. If the start time is in the future, a "Starting in..." message will be displayed.
-- **Flexible Duration Formats**: Specify durations like `10m`, `1h30m`, or `01:30:00`.
+- **Scheduled Start**: Optionally set a date, time, and timezone for the timer to begin. If the start time is in the future, a "Starting in..." message will be displayed. If only a time is set, today's date is used by default.
+- **Flexible Display**: For timers longer than 36 hours, the format automatically includes days (DD:HH:MM:SS). You can also choose to hide the seconds for a cleaner look.
 - **Customizable Display**: Change the title and colors to match your needs.
 - **Live Preview**: See your timer in action before you use it.
 
@@ -38,9 +38,10 @@ https://clock.efrm.net/timer-config.html
 - **`dur`**: The duration for the timer (e.g., `10m`, `1h30m`). Used when `mode=duration`.
 - **`time`**: The end time for the countdown (e.g., `17:00`). Used when `mode=timeOfDay`.
 - **`startDate`**: The date for a scheduled start (e.g., `2025-12-31`).
-- **`startTime`**: The time for a scheduled start (e.g., `09:00`).
+- **`startTime`**: The time for a scheduled start (e.g., `09:00` or `09:00:30`).
 - **`timezone`**: The IANA timezone for the scheduled start (e.g., `America/New_York`).
 - **`showTitle`**: `true` to include the title in the "Starting in..." message.
+- **`hide_seconds`**: `true` to hide seconds from the display.
 - **`bg`**, **`timer_color`**: Color options for the display.
 
 ---
