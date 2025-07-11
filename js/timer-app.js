@@ -130,7 +130,16 @@ function initTimerPage() {
     
     targetTime = calculateTargetTime();
     updateTimer();
-    setInterval(updateTimer, 1000);
+    // Synchronize timer tick with local clock
+    const syncToNextSecond = () => {
+        const now = Date.now();
+        const msToNextSecond = 1000 - (now % 1000);
+        setTimeout(() => {
+            updateTimer();
+            setInterval(updateTimer, 1000);
+        }, msToNextSecond);
+    };
+    syncToNextSecond();
 }
 
 
