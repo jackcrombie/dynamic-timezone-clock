@@ -1,10 +1,50 @@
-.container {
+body {
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+
+  .container {
     max-width: 900px;
-    margin: 0 auto;
+    margin: 40px auto;
     background: white;
     border-radius: 16px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
     overflow: hidden;
+    padding: 0 40px 40px 40px;
+  }
+
+  @media (max-width: 600px) {
+    .container {
+      max-width: 98vw;
+      margin: 10px auto;
+      border-radius: 8px;
+      padding: 0 8px 16px 8px;
+    }
+    .form-container {
+      padding: 16px 0 0 0;
+    }
+    .header {
+      padding: 16px 4px;
+      font-size: 1.2em;
+      border-radius: 8px 8px 0 0;
+    }
+    label, .help-text {
+      font-size: 1em;
+    }
+    .btn-generate, .btn-preview, .btn-open, button {
+      font-size: 1em;
+      padding: 10px 8px;
+      border-radius: 6px;
+    }
+    .output {
+      padding: 10px;
+    }
+    .preview-frame-wrapper {
+      height: 180px;
+    }
   }
 
   nav {
