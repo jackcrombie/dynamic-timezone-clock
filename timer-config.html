@@ -114,12 +114,18 @@
           </div>
 
           <div class="form-group">
-            <div class="checkbox-group">
-              <input type="checkbox" id="hideSeconds" name="hideSeconds" />
-              <label for="hideSeconds">Hide seconds from display</label>
+            <div class="checkbox-row" style="display: flex; gap: 24px; align-items: center;">
+              <div class="checkbox-group" style="margin-bottom: 0;">
+                <input type="checkbox" id="hideHours" name="hideHours" />
+                <label for="hideHours">Hide hours from display</label>
+              </div>
+              <div class="checkbox-group" style="margin-bottom: 0;">
+                <input type="checkbox" id="hideSeconds" name="hideSeconds" />
+                <label for="hideSeconds">Hide seconds from display</label>
+              </div>
             </div>
             <div class="help-text">
-              The timer will still be accurate to the second, but the display will not show them.
+              The timer will still be accurate to the second, but the display will not show them. You can also hide hours for short timers.
             </div>
           </div>
 

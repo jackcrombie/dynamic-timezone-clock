@@ -22,7 +22,8 @@ function initTimerPage() {
     const startTimeStr = urlParams.get('startTime');
     const timezone = urlParams.get('timezone') || 'UTC';
     const showTitleInPreTimer = urlParams.get('showTitle') === 'true';
-    const hideSeconds = urlParams.get('hide_seconds') === 'true';
+    const hideSeconds = urlParams.has('hide_seconds') ? urlParams.get('hide_seconds') === 'true' : false;
+    const hideHours = urlParams.has('hide_hours') ? urlParams.get('hide_hours') === 'true' : false;
     const bgColor = urlParams.get('bg') || 'transparent';
     const timerColor = urlParams.get('timer_color') || '#FFFFFF';
 
@@ -36,9 +37,11 @@ function initTimerPage() {
 
     const parseDuration = (dur) => {
         let totalSeconds = 0;
+        const daysMatch = dur.match(/(\d+)d/);
         const hoursMatch = dur.match(/(\d+)h/);
         const minutesMatch = dur.match(/(\d+)m/);
         const secondsMatch = dur.match(/(\d+)s/);
+        if (daysMatch) totalSeconds += parseInt(daysMatch[1]) * 86400;
         if (hoursMatch) totalSeconds += parseInt(hoursMatch[1]) * 3600;
         if (minutesMatch) totalSeconds += parseInt(minutesMatch[1]) * 60;
         if (secondsMatch) totalSeconds += parseInt(secondsMatch[1]);
@@ -47,18 +50,20 @@ function initTimerPage() {
 
     const calculateTargetTime = () => {
         const now = luxon.DateTime.local();
-        if (startDateStr && startTimeStr) {
-            const startDateTime = luxon.DateTime.fromISO(`${startDateStr}T${startTimeStr}`, { zone: timezone });
-            if (now < startDateTime) {
-                initialDurationInHours = startDateTime.diff(now, 'hours').hours;
-                return { preTimer: true, start: startDateTime };
-            }
-        }
-
         if (mode === 'duration') {
             const durationObj = parseDuration(duration);
             initialDurationInHours = durationObj.as('hours');
-            return { preTimer: false, end: now.plus(durationObj) };
+            if (startDateStr && startTimeStr) {
+                const startDateTime = luxon.DateTime.fromISO(`${startDateStr}T${startTimeStr}`, { zone: timezone });
+                const endDateTime = startDateTime.plus(durationObj);
+                if (now < startDateTime) {
+                    return { preTimer: true, start: startDateTime, end: endDateTime };
+                } else {
+                    return { preTimer: false, end: endDateTime };
+                }
+            } else {
+                return { preTimer: false, end: now.plus(durationObj) };
+            }
         } else { // time of day
             let end = luxon.DateTime.fromISO(endTimeStr, { zone: timezone });
             if (now > end) {
@@ -71,11 +76,20 @@ function initTimerPage() {
 
     const formatTime = (diff, durationInHours) => {
         let parts = [];
+        // Only show DD if duration > 36 hours
         if (durationInHours > 36) {
-            parts.push(diff.days.toString().padStart(2, '0'));
-            parts.push(diff.hours.toString().padStart(2, '0'));
+            if (!hideHours) {
+                parts.push(diff.days.toString().padStart(2, '0'));
+                parts.push(diff.hours.toString().padStart(2, '0'));
+            } else {
+                // If hours hidden, just show days
+                parts.push(diff.days.toString().padStart(2, '0'));
+            }
         } else {
-            parts.push(Math.floor(diff.as('hours')).toString().padStart(2, '0'));
+            // Under 36 hours, never show DD
+            if (!hideHours) {
+                parts.push(Math.floor(diff.as('hours')).toString().padStart(2, '0'));
+            }
         }
         parts.push(diff.minutes.toString().padStart(2, '0'));
         if (!hideSeconds) {
@@ -87,18 +101,25 @@ function initTimerPage() {
     const updateTimer = () => {
         const now = luxon.DateTime.local();
         if (targetTime.preTimer) {
+            // Use the same DD:HH:MM:SS logic for pre-timer
             const diff = targetTime.start.diff(now, ['days', 'hours', 'minutes', 'seconds']);
+            const durationToStart = targetTime.start.diff(now, 'hours').hours;
             if (now >= targetTime.start) {
                 targetTime = calculateTargetTime(); // Recalculate to start the main timer
                 return;
             }
             const titlePrefix = showTitleInPreTimer ? `${titleText} starting in` : 'Starting in';
             dom.title.textContent = titlePrefix;
-            dom.timer.textContent = formatTime(diff, initialDurationInHours);
+            dom.timer.textContent = formatTime(diff, durationToStart);
         } else {
             const diff = targetTime.end.diff(now, ['days', 'hours', 'minutes', 'seconds', 'milliseconds']);
             if (diff.as('milliseconds') <= 0) {
-                dom.timer.textContent = hideSeconds ? "00:00" : "00:00:00";
+                let completedStr = "";
+                if (hideHours && hideSeconds) completedStr = "00";
+                else if (hideHours) completedStr = hideSeconds ? "00" : "00:00";
+                else if (hideSeconds) completedStr = "00:00";
+                else completedStr = "00:00:00";
+                dom.timer.textContent = completedStr;
                 dom.title.textContent = `${titleText} Complete`;
                 return;
             }
@@ -125,6 +146,7 @@ function initTimerConfigPage() {
         startTimezone: document.getElementById("startTimezone"),
         showTitleInPreTimer: document.getElementById("showTitleInPreTimer"),
         hideSeconds: document.getElementById("hideSeconds"),
+        hideHours: document.getElementById("hideHours"),
         title: document.getElementById("title"),
         background: document.getElementById("background"),
         colorText: document.getElementById("colorText"),
@@ -178,6 +200,7 @@ function initTimerConfigPage() {
         let startDate = dom.startDate.value;
         const startTime = dom.startTime.value;
         const hideSeconds = dom.hideSeconds.checked;
+        const hideHours = dom.hideHours && dom.hideHours.checked;
 
         // If a time is provided but a date is not, default to today's date.
         if (startTime && !startDate) {
@@ -194,6 +217,9 @@ function initTimerConfigPage() {
 
         if (hideSeconds) {
             url += `&hide_seconds=true`;
+        }
+        if (hideHours) {
+            url += `&hide_hours=true`;
         }
 
         if (bgColor !== "transparent") url += `&bg=${encodeURIComponent(bgColor)}`;
