@@ -129,17 +129,14 @@ function initTimerPage() {
     };
     
     targetTime = calculateTargetTime();
-    updateTimer();
-    // Synchronize timer tick with local clock
-    const syncToNextSecond = () => {
+    // Recursive timeout for perfect sync with system clock
+    const tickSync = () => {
+        updateTimer();
         const now = Date.now();
         const msToNextSecond = 1000 - (now % 1000);
-        setTimeout(() => {
-            updateTimer();
-            setInterval(updateTimer, 1000);
-        }, msToNextSecond);
+        setTimeout(tickSync, msToNextSecond);
     };
-    syncToNextSecond();
+    tickSync();
 }
 
 
