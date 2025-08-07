@@ -1,3 +1,5 @@
 todo.md
 
-create a countdoown timer with defined start time, and runtime or coutndown to time of day with deep links
+#sizing
+allow the timer and clock size to be scaled. set it as a % of the browser space available.
+
