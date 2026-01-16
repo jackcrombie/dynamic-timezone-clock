@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multi-Clock Display</title>
+  <link rel="stylesheet" href="css/multi-clock.css">
+</head>
+<body>
+  <div class="multi-clock-container" id="clockContainer">
+    <!-- Clocks will be dynamically inserted here -->
+  </div>
+  <script>
+    // Parse URL parameters to get clock configurations
+    const urlParams = new URLSearchParams(window.location.search);
+    const clockConfigs = [];
+    
+    // Determine the base URL for clock iframes
+    // If we're on a subdomain or different path, we need to reference the main clock
+    const getClockBaseUrl = () => {
+      // Check if we're on a subdomain (e.g., multiview.efrm.net)
+      const hostname = window.location.hostname;
+      if (hostname.includes('multiview') || hostname.includes('multiclock')) {
+        // On subdomain, reference main domain
+        const mainDomain = hostname.replace(/^(multiview|multiclock)\./, '');
+        return `${window.location.protocol}//${mainDomain}`;
+      }
+      // Same domain, reference parent directory
+      return window.location.origin;
+    };
+    
+    const clockBaseUrl = getClockBaseUrl();
+    
+    // Look for clock parameters in format: clock0_tz, clock0_code, clock0_location, etc.
+    let clockIndex = 0;
+    while (true) {
+      const tz = urlParams.get(`clock${clockIndex}_tz`);
+      if (!tz) break; // No more clocks
+      
+      const config = {
+        timezone: tz,
+        code: urlParams.get(`clock${clockIndex}_code`) || 'TZ',
+        location: urlParams.get(`clock${clockIndex}_location`) || '',
+        bg: urlParams.get(`clock${clockIndex}_bg`) || 'transparent',
+        clockColor: urlParams.get(`clock${clockIndex}_clock_color`) || '#FFFFFF',
+        weatherColor: urlParams.get(`clock${clockIndex}_weather_color`) || '#FFFFFF',
+        showWeather: urlParams.get(`clock${clockIndex}_weather`) === 'true',
+        weatherLat: urlParams.get(`clock${clockIndex}_weather_lat`),
+        weatherLon: urlParams.get(`clock${clockIndex}_weather_lon`),
+        tempUnit: urlParams.get(`clock${clockIndex}_temp_unit`) || 'C',
+        windUnit: urlParams.get(`clock${clockIndex}_wind_unit`) || 'kph'
+      };
+      
+      clockConfigs.push(config);
+      clockIndex++;
+    }
+    
+    // If no clocks found, show a default or message
+    if (clockConfigs.length === 0) {
+      document.getElementById('clockContainer').innerHTML = 
+        '<div class="no-clocks-message">No clocks configured. Use the config page to generate a URL.</div>';
+    } else {
+      // Generate iframes for each clock
+      const container = document.getElementById('clockContainer');
+      clockConfigs.forEach((config, index) => {
+        const clockWrapper = document.createElement('div');
+        clockWrapper.className = 'clock-wrapper';
+        clockWrapper.style.width = '100%';
+        clockWrapper.style.maxWidth = 'none';
+        
+        const iframe = document.createElement('iframe');
+        iframe.className = 'clock-iframe';
+        iframe.frameBorder = '0';
+        iframe.scrolling = 'no';
+        iframe.style.width = '100%';
+        iframe.style.height = '400px';
+        iframe.style.minHeight = '400px';
+        iframe.style.display = 'block';
+        iframe.style.border = 'none';
+        iframe.style.maxWidth = 'none';
+        iframe.style.margin = '0';
+        iframe.style.padding = '0';
+        iframe.style.boxSizing = 'border-box';
+        
+        // Build the URL for this clock - reference the main clock page (root index.html)
+        // For GitHub Pages, this will be at the root: clock.efrm.net/
+        let clockUrl = `${clockBaseUrl}/?tz=${encodeURIComponent(config.timezone)}&code=${encodeURIComponent(config.code)}`;
+        if (config.bg !== 'transparent') clockUrl += `&bg=${encodeURIComponent(config.bg)}`;
+        if (config.clockColor !== '#FFFFFF') clockUrl += `&clock_color=${encodeURIComponent(config.clockColor)}`;
+        if (config.weatherColor !== '#FFFFFF') clockUrl += `&weather_color=${encodeURIComponent(config.weatherColor)}`;
+        if (config.location) clockUrl += `&location=${encodeURIComponent(config.location)}`;
+        
+        if (config.showWeather) {
+          clockUrl += `&weather=true&temp_unit=${encodeURIComponent(config.tempUnit)}&wind_unit=${encodeURIComponent(config.windUnit)}`;
+          if (config.weatherLat && config.weatherLon) {
+            clockUrl += `&weather_lat=${encodeURIComponent(config.weatherLat)}&weather_lon=${encodeURIComponent(config.weatherLon)}`;
+          }
+        }
+        
+        iframe.src = clockUrl;
+        clockWrapper.appendChild(iframe);
+        container.appendChild(clockWrapper);
+      });
+    }
+    
+    // Set background color if specified
+    const bgColor = urlParams.get('bg');
+    if (bgColor) {
+      document.body.style.backgroundColor = bgColor;
+    }
+    
+    // Set layout (grid columns)
+    const columns = urlParams.get('columns') || 'auto';
+    if (columns !== 'auto') {
+      const container = document.getElementById('clockContainer');
+      container.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
+    }
+  </script>
+</body>
+</html>

@@ -140,7 +140,13 @@ document.addEventListener('DOMContentLoaded', () => {
 // --- CLOCK PAGE LOGIC ---
 
 function initClockPage() {
+    // Detect if we're in an iframe and add class for better sizing
+    if (window.self !== window.top) {
+        document.body.classList.add('iframe-context');
+    }
+    
     const clockEl = document.getElementById("clock");
+    const locationNameEl = document.getElementById("locationName");
     const weatherEl = document.getElementById("weather");
     const weatherLineEl = document.querySelector(".weather-line");
 
@@ -156,10 +162,20 @@ function initClockPage() {
     const weatherLon = urlParams.get('weather_lon');
     const tempUnit = urlParams.get('temp_unit') || 'C';
     const windUnit = urlParams.get('wind_unit') || 'kph';
+    const locationName = urlParams.get('location');
 
     document.body.style.backgroundColor = bgColor;
     clockEl.style.color = clockColor;
     weatherEl.style.color = weatherColor;
+    
+    // Display location name if provided
+    if (locationName) {
+        locationNameEl.textContent = locationName;
+        locationNameEl.style.color = clockColor;
+        locationNameEl.style.display = 'block';
+    } else {
+        locationNameEl.style.display = 'none';
+    }
 
     const weatherService = new WeatherService();
 
@@ -170,8 +186,8 @@ function initClockPage() {
     };
 
     const sizeWeatherDisplay = () => {
-        const clockWidth = clockEl.offsetWidth;
-        weatherEl.style.width = `${clockWidth}px`;
+        // Don't constrain weather width - let it center naturally
+        // The weather-line will center itself based on content
     };
 
     const displayWeather = (data) => {
@@ -180,15 +196,18 @@ function initClockPage() {
             return;
         }
         
-        const condition = `<div class="weather-item">${data.condition}</div>`;
-        const temp = `<div class="weather-item">${data.temperature}°${tempUnit}</div>`;
-        const wind = `<div class="weather-item">${data.windSpeed} ${windUnit} ${data.windCompass}</div>`;
-        const rain = `<div class="weather-item">${data.precipitationChance}%</div>`;
+        const condition = `<div class="weather-item">${data.condition || 'N/A'}</div>`;
+        const temp = `<div class="weather-item">${data.temperature || 'N/A'}°${tempUnit}</div>`;
+        const wind = `<div class="weather-item">${data.windSpeed || 'N/A'} ${windUnit} ${data.windCompass || ''}</div>`;
+        const precipValue = (data.precipitationChance !== undefined && data.precipitationChance !== null) ? data.precipitationChance : 0;
+        const rain = `<div class="weather-item">${precipValue}%</div>`;
         const separator = `<div class="weather-separator">|</div>`;
 
         weatherLineEl.innerHTML = [condition, separator, temp, separator, wind, separator, rain].join('');
         
-        weatherEl.style.display = 'block';
+        weatherEl.style.display = 'flex';
+        weatherEl.style.justifyContent = 'center';
+        weatherEl.style.alignItems = 'center';
     };
 
     const updateWeather = () => {
@@ -227,6 +246,7 @@ function initConfigPage() {
     const dom = {
         timezone: document.getElementById("timezone"),
         code: document.getElementById("code"),
+        locationName: document.getElementById("locationName"),
         background: document.getElementById("background"),
         colorText: document.getElementById("colorText"),
         backgroundSwatch: document.querySelector("#background").parentElement,
@@ -347,6 +367,11 @@ function initConfigPage() {
             if (weatherLat && weatherLon) {
                 url += `&weather_lat=${encodeURIComponent(weatherLat)}&weather_lon=${encodeURIComponent(weatherLon)}`;
             }
+        }
+        
+        const locationName = dom.locationName?.value?.trim();
+        if (locationName) {
+            url += `&location=${encodeURIComponent(locationName)}`;
         }
         dom.generatedURL.textContent = url;
         dom.output.classList.remove("hidden");

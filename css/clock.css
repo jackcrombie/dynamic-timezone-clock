@@ -3,7 +3,11 @@
 
 html, body {
   margin: 0;
-  height: 100%;
+  padding: 0;
+  min-height: 100%;
+  height: auto;
+  width: 100%;
+  max-width: none;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -13,10 +17,22 @@ html, body {
   font-feature-settings: "tnum";
   color: white;
   background: transparent;
+  box-sizing: border-box;
 }
 
 .clock-container {
   text-align: center;
+  width: 100%;
+  max-width: none;
+  padding: 20px 10px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 350px;
+  overflow: visible;
+  margin: 0 auto;
 }
 
 .clock {
@@ -25,38 +41,112 @@ html, body {
   letter-spacing: 0.1vw;
   margin-bottom: 0.5vw;
   font-family: 'Roboto', sans-serif;
+  line-height: 1.2;
+  width: 100%;
+  text-align: center;
+  white-space: nowrap;
+  overflow: visible;
+}
+
+/* Better sizing when in iframe context */
+/* Better sizing when in iframe context - make it larger but responsive */
+body.iframe-context .clock {
+  font-size: clamp(3rem, 12vw, 5.5rem);
+  margin-bottom: 1rem;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  overflow: visible;
+  text-align: center;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+body.iframe-context .location-name {
+  font-size: 2rem;
+  margin-top: 0.8rem;
+  margin-bottom: 0.8rem;
+  letter-spacing: 0.1em;
+}
+
+body.iframe-context .weather-display {
+  font-size: 1.8rem;
+  margin-top: 1.2rem;
+}
+
+body.iframe-context .weather-item {
+  padding: 0 0.6rem;
+  flex: 0 1 auto;
+}
+
+body.iframe-context .weather-line {
+  gap: 0.3rem;
+}
+
+body.iframe-context .weather-separator {
+  margin: 0 0.2rem;
+  flex-shrink: 0;
+}
+
+.location-name {
+  font-size: 2.5vw;
+  font-weight: 400;
+  opacity: 0.85;
+  display: none;
+  font-family: 'Roboto', sans-serif;
+  margin-top: 0.5vw;
+  margin-bottom: 0.5vw;
+  text-transform: uppercase;
+  letter-spacing: 0.1vw;
+  width: 100%;
+  text-align: center;
 }
 
 .weather-display {
   font-size: 2.5vw;
   font-weight: 400;
   opacity: 0.9;
-  display: none; /* Hidden by default */
+  display: none; /* Hidden by default, shown by JavaScript */
   font-family: 'Roboto', sans-serif;
   margin-top: 1vw;
+  width: 100%;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
 }
 
 .weather-line {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   white-space: nowrap;
+  width: auto;
+  max-width: 100%;
+  flex-wrap: nowrap;
+  gap: 0.5vw;
+  margin: 0 auto;
 }
 
 .weather-item {
-  flex: 1;
+  flex: 0 1 auto;
   text-align: center;
   padding: 0 1vw;
+  white-space: nowrap;
+  min-width: fit-content;
 }
 
 .weather-separator {
   opacity: 0.8;
   font-weight: 300;
-  margin: 0 0.5vw;
+  margin: 0 0.3vw;
+  flex-shrink: 0;
 }
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
+  .location-name {
+    font-size: 3.5vw;
+  }
   .weather-display {
     font-size: 3.5vw;
   }
@@ -69,6 +159,9 @@ html, body {
 }
 
 @media (max-width: 480px) {
+  .location-name {
+    font-size: 4vw;
+  }
   .weather-display {
     font-size: 4vw;
   }

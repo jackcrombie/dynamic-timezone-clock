@@ -1,0 +1,119 @@
+/* Multi-clock config specific styles */
+
+.clock-config-card {
+  background: #f8f9fa;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.clock-config-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.clock-config-title {
+  font-size: 1.3em;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0;
+}
+
+.btn-remove-clock {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9em;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.btn-remove-clock:hover {
+  background: #c82333;
+  transform: translateY(-1px);
+}
+
+.btn-add-clock {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 15px 25px;
+  border-radius: 8px;
+  font-size: 1.1em;
+  font-weight: 600;
+  font-family: 'Roboto', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 20px;
+}
+
+.btn-add-clock:hover {
+  background: #218838;
+  transform: translateY(-2px);
+}
+
+.clock-config-card .form-group {
+  margin-bottom: 15px;
+}
+
+.clock-config-card .form-row {
+  margin-bottom: 15px;
+}
+
+.clock-config-card label {
+  font-size: 1em;
+}
+
+.clock-config-card .help-text {
+  font-size: 0.85em;
+}
+
+/* Collapsible clock config */
+.clock-config-collapsible {
+  cursor: pointer;
+  user-select: none;
+}
+
+.clock-config-collapsible:hover {
+  opacity: 0.8;
+}
+
+.clock-config-content {
+  display: block;
+}
+
+.clock-config-content.collapsed {
+  display: none;
+}
+
+.collapse-icon {
+  display: inline-block;
+  transition: transform 0.3s ease;
+  margin-left: 10px;
+}
+
+.collapse-icon.rotated {
+  transform: rotate(180deg);
+}
+
+/* Empty state */
+#clocksContainer:empty::before {
+  content: "No clocks added yet. Click 'Add Clock' to get started.";
+  display: block;
+  text-align: center;
+  padding: 40px;
+  color: #6c757d;
+  font-style: italic;
+  background: #f8f9fa;
+  border: 2px dashed #dee2e6;
+  border-radius: 8px;
+}

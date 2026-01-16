@@ -1,0 +1,160 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  max-width: none;
+  font-family: 'Roboto', sans-serif;
+  background: #1a1a1a;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.multi-clock-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 40px;
+  padding: 40px 10px;
+  min-height: 100vh;
+  align-items: start;
+  justify-items: stretch;
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
+  margin: 0;
+}
+
+.multi-clock-container > * {
+  width: 100%;
+  max-width: none;
+}
+
+.clock-wrapper {
+  width: 100% !important;
+  max-width: none !important;
+  height: auto;
+  min-height: 400px;
+  display: block;
+  background: transparent;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-sizing: border-box;
+}
+
+.clock-iframe {
+  width: 100% !important;
+  height: 400px !important;
+  border: none;
+  background: transparent;
+  overflow: visible;
+  min-height: 400px !important;
+  max-width: none !important;
+  display: block;
+}
+
+.no-clocks-message {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: #ffffff;
+  font-size: 1.5em;
+  padding: 40px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  margin: 40px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .multi-clock-container {
+    grid-template-columns: 1fr;
+    gap: 30px;
+    padding: 30px;
+  }
+}
+
+@media (max-width: 768px) {
+  .multi-clock-container {
+    grid-template-columns: 1fr;
+    gap: 30px;
+    padding: 30px;
+  }
+  
+  .clock-wrapper {
+    min-height: 400px;
+  }
+  
+  .clock-iframe {
+    height: 400px;
+    min-height: 400px;
+  }
+  
+  body.iframe-context .clock {
+    font-size: 6rem;
+  }
+  
+  body.iframe-context .location-name {
+    font-size: 1.8rem;
+  }
+  
+  body.iframe-context .weather-display {
+    font-size: 1.6rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .multi-clock-container {
+    padding: 25px;
+    gap: 25px;
+  }
+  
+  .clock-wrapper {
+    min-height: 400px;
+  }
+  
+  .clock-iframe {
+    height: 400px;
+    min-height: 400px;
+  }
+  
+  body.iframe-context .clock {
+    font-size: 5rem;
+  }
+  
+  body.iframe-context .location-name {
+    font-size: 1.6rem;
+  }
+  
+  body.iframe-context .weather-display {
+    font-size: 1.4rem;
+  }
+}
+
+/* For single column layout */
+.multi-clock-container.single-column {
+  grid-template-columns: 1fr;
+  justify-items: stretch;
+}
+
+/* For two column layout */
+.multi-clock-container.two-column {
+  grid-template-columns: repeat(2, 1fr);
+  justify-items: stretch;
+}
+
+/* For three column layout */
+.multi-clock-container.three-column {
+  grid-template-columns: repeat(3, 1fr);
+  justify-items: stretch;
+}
+
+/* For four column layout */
+.multi-clock-container.four-column {
+  grid-template-columns: repeat(4, 1fr);
+  justify-items: stretch;
+}

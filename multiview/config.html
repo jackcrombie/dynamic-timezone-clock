@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Multi-Clock Configuration - multiview</title>
+    <script src="../js/timezone-data.js"></script>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/config.css">
+    <link rel="stylesheet" href="css/multi-clock-config.css">
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <div class="logo">
+          <img
+            src="https://images.squarespace-cdn.com/content/v1/5f472f112d90b306a6451b02/1598501694191-DO6FMR9J5ORUIL6KZ5PE/endframe_logo_Large_white.png?format=1500w"
+            alt="Endframe"
+          />
+        </div>
+        <h1>🕐 Multi-Clock Generator</h1>
+        <nav>
+          <a href="../config.html">Clock Config</a>
+          <a href="../timer-config.html">Timer Config</a>
+          <a href="config.html" class="active">Multi-Clock Config</a>
+        </nav>
+        <p>Create a page with multiple timezone clocks</p>
+      </div>
+
+      <div class="form-container">
+        <div class="instructions">
+          <div class="instructions-header">
+            <h3 style="margin: 0; color: #2c3e50; font-size: 1.3em">
+              Instructions
+            </h3>
+            <span class="instructions-toggle">▼</span>
+          </div>
+          <div class="instructions-content" id="instructionsContent">
+            <ul>
+              <li>
+                <strong>Add Clocks:</strong> Click "Add Clock" to add a new clock to your display
+              </li>
+              <li>
+                <strong>Configure Each Clock:</strong> Set timezone, code, location name, colors, and weather for each clock
+              </li>
+              <li>
+                <strong>Layout:</strong> Choose how many columns to display (auto, 1, 2, 3, or 4)
+              </li>
+              <li>
+                <strong>Location Name:</strong> Optional name displayed between the clock and weather
+              </li>
+              <li>
+                <strong>Generate URL:</strong> Creates a shareable URL with all your clocks configured
+              </li>
+              <li>
+                <strong>Uses:</strong> Perfect for dashboards, monitoring displays, or comparing multiple timezones
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Layout Options</label>
+          <div class="help-text">Choose the number of columns for the clock display</div>
+          <select id="columns" name="columns">
+            <option value="auto" selected>Auto (responsive)</option>
+            <option value="1">1 Column</option>
+            <option value="2">2 Columns</option>
+            <option value="3">3 Columns</option>
+            <option value="4">4 Columns</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Background Color (Optional)</label>
+          <div class="help-text">Set a background color for the entire multi-clock page</div>
+          <div class="color-group">
+            <div class="color-swatch-wrapper">
+              <input type="color" id="multiBg" name="multiBg" value="#1a1a1a" style="color-scheme: light" />
+            </div>
+            <button type="button" class="transparent-btn" id="multiBgTransparent" title="Set Transparent Background">Transparent</button>
+            <input type="text" class="color-preview" id="multiBgText" value="#1a1a1a" placeholder="e.g., #1a1a1a" />
+          </div>
+        </div>
+
+        <div id="clocksContainer">
+          <!-- Clock configurations will be added here -->
+        </div>
+
+        <div class="buttons">
+          <button type="button" class="btn-add-clock" id="addClockBtn">
+            ➕ Add Clock
+          </button>
+          <button type="button" class="btn-generate" id="generateBtn">
+            Generate URL
+          </button>
+          <button type="button" class="btn-preview" id="previewBtn">
+            Preview
+          </button>
+          <button type="button" class="btn-open" id="openBtn">
+            Open in New Window
+          </button>
+        </div>
+      </div>
+
+      <div id="output" class="output hidden">
+        <h4>Your Multi-Clock URL:</h4>
+        <div class="url-output">
+          <span id="generatedURL"></span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <div id="previewFrameWrapper" class="preview-frame-wrapper hidden">
+          <div class="crosshatch-bg" id="crosshatchBg"></div>
+          <iframe id="preview" class="preview-frame"></iframe>
+        </div>
+      </div>
+    </div>
+
+    <footer style="text-align:center; margin: 24px 0 12px 0; font-size: 1em; color: #888; font-family: 'Roboto', sans-serif;">
+      <a href="https://github.com/jackcrombie/dynamic-timezone-clock" target="_blank" rel="noopener noreferrer" style="color: #2c3e50; text-decoration: none;">
+        View on GitHub
+      </a>
+    </footer>
+
+    <script src="js/multi-clock-config.js"></script>
+  </body>
+</html>
