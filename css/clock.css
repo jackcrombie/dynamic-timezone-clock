@@ -24,7 +24,7 @@ html, body {
   text-align: center;
   width: 100%;
   max-width: none;
-  padding: 20px 10px;
+  padding: 2px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -39,7 +39,7 @@ html, body {
   font-size: 8vw;
   font-weight: 500;
   letter-spacing: 0.1vw;
-  margin-bottom: 0.5vw;
+  margin: 0;
   font-family: 'Roboto', sans-serif;
   line-height: 1.2;
   width: 100%;
@@ -52,7 +52,7 @@ html, body {
 /* Better sizing when in iframe context - make it larger but responsive */
 body.iframe-context .clock {
   font-size: clamp(3rem, 12vw, 5.5rem);
-  margin-bottom: 1rem;
+  margin: 0;
   letter-spacing: 0.05em;
   white-space: nowrap;
   overflow: visible;
@@ -63,15 +63,14 @@ body.iframe-context .clock {
 }
 
 body.iframe-context .location-name {
-  font-size: 2rem;
-  margin-top: 0.8rem;
-  margin-bottom: 0.8rem;
+  font-size: 1.8rem;
+  margin: 0;
   letter-spacing: 0.1em;
 }
 
 body.iframe-context .weather-display {
   font-size: 1.8rem;
-  margin-top: 1.2rem;
+  margin: 0;
 }
 
 body.iframe-context .weather-item {
@@ -94,8 +93,7 @@ body.iframe-context .weather-separator {
   opacity: 0.85;
   display: none;
   font-family: 'Roboto', sans-serif;
-  margin-top: 0.5vw;
-  margin-bottom: 0.5vw;
+  margin: 0;
   text-transform: uppercase;
   letter-spacing: 0.1vw;
   width: 100%;
@@ -108,7 +106,7 @@ body.iframe-context .weather-separator {
   opacity: 0.9;
   display: none; /* Hidden by default, shown by JavaScript */
   font-family: 'Roboto', sans-serif;
-  margin-top: 1vw;
+  margin: 0;
   width: 100%;
   text-align: center;
   justify-content: center;

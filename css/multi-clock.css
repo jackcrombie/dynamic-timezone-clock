@@ -19,8 +19,8 @@ html, body {
 .multi-clock-container {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 40px;
-  padding: 40px 10px;
+  gap: 2px;
+  padding: 2px;
   min-height: 100vh;
   align-items: start;
   justify-items: stretch;
@@ -73,16 +73,16 @@ html, body {
 @media (max-width: 1200px) {
   .multi-clock-container {
     grid-template-columns: 1fr;
-    gap: 30px;
-    padding: 30px;
+    gap: 2px;
+    padding: 2px;
   }
 }
 
 @media (max-width: 768px) {
   .multi-clock-container {
     grid-template-columns: 1fr;
-    gap: 30px;
-    padding: 30px;
+    gap: 2px;
+    padding: 2px;
   }
   
   .clock-wrapper {
@@ -99,7 +99,7 @@ html, body {
   }
   
   body.iframe-context .location-name {
-    font-size: 1.8rem;
+    font-size: 1.6rem;
   }
   
   body.iframe-context .weather-display {
@@ -109,8 +109,8 @@ html, body {
 
 @media (max-width: 480px) {
   .multi-clock-container {
-    padding: 25px;
-    gap: 25px;
+    padding: 2px;
+    gap: 2px;
   }
   
   .clock-wrapper {
@@ -127,7 +127,7 @@ html, body {
   }
   
   body.iframe-context .location-name {
-    font-size: 1.6rem;
+    font-size: 1.4rem;
   }
   
   body.iframe-context .weather-display {
